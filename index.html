@@ -157,7 +157,7 @@
                     <div class="mt-2 px-7 py-3">
                         <p id="modal-content" class="text-sm text-gray-500"></p>
                     </div>
-                    <div class="items-center px-4 py-3">
+                    <div id="modal-button-container" class="items-center px-4 py-3">
                         <button id="modal-close-btn" class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none transition duration-150">
                             OK
                         </button>
@@ -217,40 +217,53 @@
         const totalProfitEl = document.getElementById('total-profit');
         const searchSection = document.getElementById('search-section'); 
         const searchInput = document.getElementById('search-input');
-        const totalSoldQtyEl = document.getElementById('total-sold-qty'); // ADDED
+        const totalSoldQtyEl = document.getElementById('total-sold-qty');
 
         // Modal elements
         const modalEl = document.getElementById('custom-modal');
         const modalTitleEl = document.getElementById('modal-title');
         const modalContentEl = document.getElementById('modal-content');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalButtonContainer = document.getElementById('modal-button-container');
+        // NOTE: modalCloseBtn is NOT a global variable anymore, it is queried inside functions.
 
         // State for editing
         let editingDocId = null;
 
         // --- UTILITY FUNCTIONS ---
+        
+        // Template for the default single OK button
+        const DEFAULT_OK_BUTTON_HTML = `
+            <button id="modal-close-btn" class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none transition duration-150">
+                OK
+            </button>
+        `;
+
+        function setupSimpleModalCloseHandler() {
+            // Find the current close button element (it might have been replaced)
+            const closeBtn = document.getElementById('modal-close-btn');
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    modalEl.classList.add('hidden');
+                };
+            }
+        }
+        
+        // Set up the initial close handler on load
+        setupSimpleModalCloseHandler();
+
 
         function showModal(title, content) {
-            // Ensure the modal uses the default "OK" button behavior when showing a simple message
-            const itemsCenterDiv = modalCloseBtn.parentElement;
+            // 1. Ensure the button container is reset to the default OK button HTML
+            modalButtonContainer.innerHTML = DEFAULT_OK_BUTTON_HTML;
             
-            // Clean up any previous confirmation buttons and restore the default OK button
-            itemsCenterDiv.innerHTML = '';
-            itemsCenterDiv.appendChild(modalCloseBtn);
-            
-            // Re-apply the default close handler
-            modalCloseBtn.onclick = () => {
-                modalEl.classList.add('hidden');
-            };
+            // 2. Attach the simple close handler to the newly created button
+            setupSimpleModalCloseHandler();
 
+            // 3. Set content and display
             modalTitleEl.textContent = title;
             modalContentEl.textContent = content;
             modalEl.classList.remove('hidden');
         }
-
-        modalCloseBtn.onclick = () => {
-            modalEl.classList.add('hidden');
-        };
 
         // Function to handle exponential backoff and retry (simplified version for context)
         async function fetchWithRetry(url, options, maxRetries = 3) {
@@ -381,11 +394,6 @@
 
             // Custom modal for confirmation
             const confirmDelete = () => new Promise(resolve => {
-                const itemsCenterDiv = modalCloseBtn.parentElement;
-                
-                // --- Save original state and setup confirmation buttons ---
-                // Store the original HTML of the button container (which holds the single 'OK' button)
-                const originalContentHtml = itemsCenterDiv.innerHTML; 
                 
                 // Display confirmation message
                 modalTitleEl.textContent = "Confirm Deletion";
@@ -400,25 +408,21 @@
                 cancelButton.className = 'px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md w-1/2 shadow-sm hover:bg-gray-400 transition duration-150';
 
                 // Clear existing content and append new buttons
-                itemsCenterDiv.innerHTML = '';
-                itemsCenterDiv.appendChild(deleteButton);
-                itemsCenterDiv.appendChild(cancelButton);
+                modalButtonContainer.innerHTML = '';
+                modalButtonContainer.appendChild(deleteButton);
+                modalButtonContainer.appendChild(cancelButton);
 
                 modalEl.classList.remove('hidden');
 
                 // Function to restore the modal to its original simple message state
                 const restoreModal = () => {
-                    modalTitleEl.textContent = ""; // Clear title
-                    modalContentEl.textContent = ""; // Clear content
-                    itemsCenterDiv.innerHTML = originalContentHtml; // Restore original button HTML
+                    modalTitleEl.textContent = ""; 
+                    modalContentEl.textContent = "";
+                    // Restore the default HTML which also creates the modal-close-btn element
+                    modalButtonContainer.innerHTML = DEFAULT_OK_BUTTON_HTML;
+                    // Re-attach the simple close handler to the newly restored element
+                    setupSimpleModalCloseHandler(); 
                     
-                    // Re-attach the default close handler to the restored OK button
-                    const restoredCloseBtn = document.getElementById('modal-close-btn');
-                    if(restoredCloseBtn) {
-                        restoredCloseBtn.onclick = () => {
-                            modalEl.classList.add('hidden');
-                        };
-                    }
                     modalEl.classList.add('hidden');
                 };
 
@@ -435,6 +439,7 @@
             if (await confirmDelete()) {
                 try {
                     await deleteDoc(doc(db, COLLECTION_PATH, docId));
+                    // The bug was here: calling showModal needs a fresh, correct button reference
                     showModal("Deleted", "Item successfully removed from inventory.");
                 } catch (error) {
                     console.error("Error deleting product:", error);
