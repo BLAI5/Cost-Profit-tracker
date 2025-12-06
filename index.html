@@ -231,6 +231,18 @@
         // --- UTILITY FUNCTIONS ---
 
         function showModal(title, content) {
+            // Ensure the modal uses the default "OK" button behavior when showing a simple message
+            const itemsCenterDiv = modalCloseBtn.parentElement;
+            
+            // Clean up any previous confirmation buttons and restore the default OK button
+            itemsCenterDiv.innerHTML = '';
+            itemsCenterDiv.appendChild(modalCloseBtn);
+            
+            // Re-apply the default close handler
+            modalCloseBtn.onclick = () => {
+                modalEl.classList.add('hidden');
+            };
+
             modalTitleEl.textContent = title;
             modalContentEl.textContent = content;
             modalEl.classList.remove('hidden');
@@ -369,11 +381,13 @@
 
             // Custom modal for confirmation
             const confirmDelete = () => new Promise(resolve => {
-                const tempModalTitle = modalTitleEl.textContent;
-                const tempModalContent = modalContentEl.textContent;
                 const itemsCenterDiv = modalCloseBtn.parentElement;
-                const originalContent = itemsCenterDiv.innerHTML;
-
+                
+                // --- Save original state and setup confirmation buttons ---
+                // Store the original HTML of the button container (which holds the single 'OK' button)
+                const originalContentHtml = itemsCenterDiv.innerHTML; 
+                
+                // Display confirmation message
                 modalTitleEl.textContent = "Confirm Deletion";
                 modalContentEl.textContent = "Are you sure you want to delete this inventory item? This cannot be undone.";
                 
@@ -385,21 +399,37 @@
                 cancelButton.textContent = 'Cancel';
                 cancelButton.className = 'px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md w-1/2 shadow-sm hover:bg-gray-400 transition duration-150';
 
+                // Clear existing content and append new buttons
                 itemsCenterDiv.innerHTML = '';
                 itemsCenterDiv.appendChild(deleteButton);
                 itemsCenterDiv.appendChild(cancelButton);
 
                 modalEl.classList.remove('hidden');
 
+                // Function to restore the modal to its original simple message state
                 const restoreModal = () => {
-                    modalTitleEl.textContent = tempModalTitle;
-                    modalContentEl.textContent = tempModalContent;
-                    itemsCenterDiv.innerHTML = originalContent; 
+                    modalTitleEl.textContent = ""; // Clear title
+                    modalContentEl.textContent = ""; // Clear content
+                    itemsCenterDiv.innerHTML = originalContentHtml; // Restore original button HTML
+                    
+                    // Re-attach the default close handler to the restored OK button
+                    const restoredCloseBtn = document.getElementById('modal-close-btn');
+                    if(restoredCloseBtn) {
+                        restoredCloseBtn.onclick = () => {
+                            modalEl.classList.add('hidden');
+                        };
+                    }
                     modalEl.classList.add('hidden');
                 };
 
-                deleteButton.onclick = () => { resolve(true); restoreModal(); };
-                cancelButton.onclick = () => { resolve(false); restoreModal(); };
+                deleteButton.onclick = () => { 
+                    resolve(true); 
+                    restoreModal(); // Restore UI after resolution
+                };
+                cancelButton.onclick = () => { 
+                    resolve(false); 
+                    restoreModal(); // Restore UI after resolution
+                };
             });
 
             if (await confirmDelete()) {
