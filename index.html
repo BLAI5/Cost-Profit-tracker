@@ -3,29 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apparel Inventory Tracker</title>
+    <!-- Updated Title -->
+    <title>Jessica B Designing</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Inter font -->
     <style>
         @import url('https://fonts.fonts.gstatic.com/s/inter/v13/UuauZp2EwK8y4XJc5_rSzhwV58T6_J1x1Q.woff2');
         body { font-family: 'Inter', sans-serif; }
+        /* Style for the collapsible panel */
+        .collapsible-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+        }
+        .collapsible-panel.is-expanded {
+            max-height: 1000px; /* Large enough to accommodate the form content */
+            padding-top: 1.5rem; /* p-6 equivalent for the top padding */
+            padding-bottom: 1.5rem; /* p-6 equivalent for the bottom padding */
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-6 md:p-8">
 
     <div id="app-container" class="max-w-4xl mx-auto">
         <header class="mb-8 p-4 bg-white rounded-lg shadow-lg">
+            <!-- Updated Header Title -->
             <h1 class="text-3xl font-bold text-gray-800 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 text-indigo-600">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.124.75.75 0 0 1-.72 2.115.75.75 0 0 0 .15 1.13 1 1 0 0 0 .524.364l4.475 1.571a.75.75 0 0 0 .73-.133.75.75 0 0 0 .182-.578v-4.18a.75.75 0 0 1 .53-.721L12 15.346l1.378-.492a.75.75 0 0 1 .53.722v4.18a.75.75 0 0 0 .182.578.75.75 0 0 0 .73.133l4.475-1.571a.75.75 0 0 0 .524-.364.75.75 0 0 0-.72-2.115 3 3 0 0 0-5.78-1.124V5.722a.75.75 0 0 0-1.5 0v10.402Z" />
                 </svg>
-                Apparel Inventory
+                Jessica B Designing
             </h1>
-            <p class="text-sm text-gray-500 mt-1">Real-time tracking for your side gig. All data is shared.</p>
-            <div id="auth-info" class="text-xs mt-3 p-2 bg-indigo-50 text-indigo-700 rounded-md">
-                <span id="user-id-display">Loading User ID...</span>
-            </div>
+            <!-- Removed text and auth-info -->
         </header>
 
         <!-- Loading Indicator -->
@@ -36,55 +46,67 @@
             </svg>
             Connecting to inventory database...
         </div>
-
-        <!-- Inventory Form Section -->
-        <div id="input-form-section" class="bg-white p-6 rounded-lg shadow-xl mb-8 hidden">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Add New Item / Edit Details</h2>
-            <form id="inventory-form" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                
-                <!-- Product Name -->
-                <div class="col-span-2 sm:col-span-3">
-                    <label for="product-name" class="block text-sm font-medium text-gray-700">Product Name</label>
-                    <input type="text" id="product-name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
-                </div>
-
-                <!-- Retail Cost (COGS) -->
-                <div>
-                    <label for="retail-cost" class="block text-sm font-medium text-gray-700">Retail Cost ($)</label>
-                    <input type="number" step="0.01" id="retail-cost" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="0">
-                </div>
-
-                <!-- Selling Price -->
-                <div>
-                    <label for="selling-price" class="block text-sm font-medium text-gray-700">Selling Price ($)</label>
-                    <input type="number" step="0.01" id="selling-price" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="0">
-                </div>
-
-                <!-- Size -->
-                <div>
-                    <label for="size" class="block text-sm font-medium text-gray-700">Size (e.g., L, 32x30)</label>
-                    <input type="text" id="size" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
-                </div>
-
-                <!-- Quantity (Initial/Current Stock for Add/Edit) -->
-                <div>
-                    <label for="quantity" class="block text-sm font-medium text-gray-700">Starting/Current Stock</label>
-                    <input type="number" step="1" id="quantity" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="1">
-                </div>
-
-                <!-- Color -->
-                <div class="col-span-2 sm:col-span-1">
-                    <label for="color" class="block text-sm font-medium text-gray-700">Color/Variant</label>
-                    <input type="text" id="color" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
-                </div>
-
-                <!-- Submit Button -->
-                <div class="col-span-2 sm:col-span-3 mt-2">
-                    <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                        Add Item to Inventory
-                    </button>
-                </div>
-            </form>
+        
+        <!-- Collapsible Form Toggle Button -->
+        <div id="form-toggle-section" class="mb-4 hidden">
+            <button id="toggle-form-btn" class="w-full flex justify-between items-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
+                <span id="form-toggle-text">Add New Inventory Item</span>
+                <svg id="form-toggle-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 transition-transform duration-300 transform rotate-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Inventory Form Section (Now Collapsible) -->
+        <div id="input-form-section" class="bg-white rounded-lg shadow-xl mb-8 collapsible-panel p-0">
+            <div class="px-6 pb-6">
+                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Add New Item / Edit Details</h2>
+                 <form id="inventory-form" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                     
+                     <!-- Product Name -->
+                     <div class="col-span-2 sm:col-span-3">
+                         <label for="product-name" class="block text-sm font-medium text-gray-700">Product Name</label>
+                         <input type="text" id="product-name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                     </div>
+         
+                     <!-- Retail Cost (COGS) -->
+                     <div>
+                         <label for="retail-cost" class="block text-sm font-medium text-gray-700">Retail Cost ($)</label>
+                         <input type="number" step="0.01" id="retail-cost" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="0">
+                     </div>
+         
+                     <!-- Selling Price -->
+                     <div>
+                         <label for="selling-price" class="block text-sm font-medium text-gray-700">Selling Price ($)</label>
+                         <input type="number" step="0.01" id="selling-price" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="0">
+                     </div>
+         
+                     <!-- Size -->
+                     <div>
+                         <label for="size" class="block text-sm font-medium text-gray-700">Size (e.g., L, 32x30)</label>
+                         <input type="text" id="size" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                     </div>
+         
+                     <!-- Quantity (Initial/Current Stock for Add/Edit) -->
+                     <div>
+                         <label for="quantity" class="block text-sm font-medium text-gray-700">Starting/Current Stock</label>
+                         <input type="number" step="1" id="quantity" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="1">
+                     </div>
+         
+                     <!-- Color -->
+                     <div class="col-span-2 sm:col-span-1">
+                         <label for="color" class="block text-sm font-medium text-gray-700">Color/Variant</label>
+                         <input type="text" id="color" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                     </div>
+         
+                     <!-- Submit Button -->
+                     <div class="col-span-2 sm:col-span-3 mt-2">
+                         <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                             Add Item to Inventory
+                         </button>
+                     </div>
+                 </form>
+            </div>
         </div>
         
         <!-- Search Input Field -->
@@ -101,7 +123,16 @@
 
         <!-- Inventory List Section -->
         <div id="inventory-list-section" class="bg-white p-4 sm:p-6 rounded-lg shadow-xl mb-8 hidden">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Current Inventory Stock & Sales</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-700">Current Inventory Stock & Sales</h2>
+                <!-- Button to scroll to financial summary -->
+                <button id="scroll-to-summary-btn" class="bg-gray-200 text-gray-700 text-sm font-medium py-2 px-3 rounded-md hover:bg-gray-300 transition duration-150 flex items-center shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 18H7.5m-3-6h15m-1.5 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0" />
+                    </svg>
+                    View Financial Summary
+                </button>
+            </div>
             
             <div id="inventory-container" class="space-y-4">
                 <!-- Items will be injected here -->
@@ -112,7 +143,7 @@
             </p>
         </div>
         
-        <!-- Financial Summary Section - UPDATED GRID AND NEW METRIC -->
+        <!-- Financial Summary Section -->
         <div id="financial-summary" class="bg-indigo-700 p-4 sm:p-6 rounded-lg shadow-xl text-white mt-8 hidden">
             <h2 class="text-xl font-bold mb-4 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2 text-indigo-300">
@@ -128,7 +159,6 @@
                     <p class="text-xs text-indigo-300">(Cost of stock on hand)</p>
                 </div>
                 
-                <!-- NEW: Total Sold Units Card -->
                 <div class="bg-white/10 p-4 rounded-md">
                     <p class="text-sm font-medium text-indigo-200">Total Sold Units</p>
                     <p id="total-sold-qty" class="text-2xl font-extrabold mt-1">0</p>
@@ -205,12 +235,15 @@
 
         // UI elements
         const loadingEl = document.getElementById('loading');
+        const formToggleBtn = document.getElementById('toggle-form-btn'); // NEW
+        const formToggleText = document.getElementById('form-toggle-text'); // NEW
+        const formToggleIcon = document.getElementById('form-toggle-icon'); // NEW
         const formSection = document.getElementById('input-form-section');
         const listSection = document.getElementById('inventory-list-section');
         const inventoryForm = document.getElementById('inventory-form');
         const inventoryContainer = document.getElementById('inventory-container');
         const noItemsMessage = document.getElementById('no-items-message');
-        const userIdDisplay = document.getElementById('user-id-display');
+        // Removed userIdDisplay
         const financialSummary = document.getElementById('financial-summary');
         const totalInvestmentEl = document.getElementById('total-investment');
         const totalRevenueEl = document.getElementById('total-revenue');
@@ -218,13 +251,14 @@
         const searchSection = document.getElementById('search-section'); 
         const searchInput = document.getElementById('search-input');
         const totalSoldQtyEl = document.getElementById('total-sold-qty');
+        const scrollToSummaryBtn = document.getElementById('scroll-to-summary-btn'); // NEW
+        const formToggleSection = document.getElementById('form-toggle-section'); // NEW
 
         // Modal elements
         const modalEl = document.getElementById('custom-modal');
         const modalTitleEl = document.getElementById('modal-title');
         const modalContentEl = document.getElementById('modal-content');
         const modalButtonContainer = document.getElementById('modal-button-container');
-        // NOTE: modalCloseBtn is NOT a global variable anymore, it is queried inside functions.
 
         // State for editing
         let editingDocId = null;
@@ -250,6 +284,31 @@
         
         // Set up the initial close handler on load
         setupSimpleModalCloseHandler();
+
+        // New function to toggle the form visibility
+        function toggleForm() {
+            const isExpanded = formSection.classList.toggle('is-expanded');
+            
+            if (isExpanded) {
+                formToggleIcon.classList.add('rotate-180');
+                formToggleText.textContent = 'Hide Inventory Form';
+            } else {
+                formToggleIcon.classList.remove('rotate-180');
+                formToggleText.textContent = 'Add New Inventory Item';
+                // Reset form state if collapsing
+                inventoryForm.reset();
+                editingDocId = null;
+                const submitButton = inventoryForm.querySelector('button[type="submit"]');
+                submitButton.textContent = 'Add Item to Inventory';
+                submitButton.classList.remove('bg-orange-500', 'hover:bg-orange-600');
+                submitButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            }
+        }
+        
+        // New function to scroll to the financial summary
+        function scrollToSummary() {
+             financialSummary.scrollIntoView({ behavior: 'smooth' });
+        }
 
 
         function showModal(title, content) {
@@ -309,23 +368,27 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
-                        userIdDisplay.innerHTML = `You are authenticated with User ID: <strong>${userId}</strong>. Your data is collaborative.`;
+                        // Removed userIdDisplay update
                         
                         // Show the app UI and start listening to data
                         loadingEl.classList.add('hidden');
-                        formSection.classList.remove('hidden');
+                        formToggleSection.classList.remove('hidden'); // Show toggle button
                         listSection.classList.remove('hidden');
                         financialSummary.classList.remove('hidden'); 
                         searchSection.classList.remove('hidden');
                         loadProducts();
                         
-                        // Attach search listener after auth/UI setup
+                        // Attach listeners after auth/UI setup
                         searchInput.addEventListener('input', () => {
                             renderInventory(currentItems);
                         });
+                        
+                        formToggleBtn.addEventListener('click', toggleForm);
+                        scrollToSummaryBtn.addEventListener('click', scrollToSummary);
+
 
                     } else {
-                        userIdDisplay.textContent = "Authentication failed.";
+                        // Handle failure case if needed, but for anonymous sign-in, it usually succeeds.
                         loadingEl.classList.add('hidden');
                     }
                 });
@@ -439,7 +502,6 @@
             if (await confirmDelete()) {
                 try {
                     await deleteDoc(doc(db, COLLECTION_PATH, docId));
-                    // The bug was here: calling showModal needs a fresh, correct button reference
                     showModal("Deleted", "Item successfully removed from inventory.");
                 } catch (error) {
                     console.error("Error deleting product:", error);
@@ -480,9 +542,14 @@
             document.getElementById('color').value = item.color;
             
             const submitButton = inventoryForm.querySelector('button[type="submit"]');
-            submitButton.textContent = 'Update Item Details';
+            submitButton.textContent = `Update "${item.productName}"`;
             submitButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
             submitButton.classList.add('bg-orange-500', 'hover:bg-orange-600');
+            
+            // Open the form/dropdown when editing
+            if (!formSection.classList.contains('is-expanded')) {
+                toggleForm();
+            }
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -505,7 +572,7 @@
             let totalInvestment = 0;
             let totalRealizedRevenue = 0;
             let totalRealizedCostOfSoldGoods = 0;
-            let totalSoldQuantity = 0; // NEW: ACCUMULATOR
+            let totalSoldQuantity = 0; 
 
             if (filteredItems.length === 0) {
                 noItemsMessage.classList.remove('hidden');
@@ -526,11 +593,8 @@
                 const grossProfitPerUnit = sellingPrice - retailCost;
                 const totalProfitFromSales = grossProfitPerUnit * salesQuantity; 
                 
-                const grossProfitColor = grossProfitPerUnit > 0 ? 'text-green-600' : 'text-red-500';
                 const totalProfitColor = totalProfitFromSales > 0 ? 'text-green-700' : (totalProfitFromSales < 0 ? 'text-red-700' : 'text-gray-700');
 
-                // The aggregation happens below in the global calculation loop, 
-                // but we can leave the per-item calculation here for clarity:
                 
                 const itemHtml = `
                     <div class="bg-white p-4 border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition duration-200 sm:flex sm:justify-between sm:items-center">
@@ -544,8 +608,8 @@
                                 <div><span class="font-medium text-gray-600">Stock Qty:</span> <span class="text-indigo-600 font-semibold">${currentStock}</span></div>
                                 <div><span class="font-medium text-gray-600">Sold Qty:</span> <span class="text-indigo-600 font-semibold">${salesQuantity}</span></div>
                                 
-                                <div><span class="font-medium text-gray-600">Retail Cost:</span> $${item.retailCost.toFixed(2)}</div>
-                                <div><span class="font-medium text-gray-600">Selling Price:</span> $${item.sellingPrice.toFixed(2)}</div>
+                                <div><span class="font-medium text-gray-600">Retail Cost:</span> $${retailCost.toFixed(2)}</div>
+                                <div><span class="font-medium text-gray-600">Selling Price:</span> $${sellingPrice.toFixed(2)}</div>
                             </div>
                         </div>
 
@@ -588,7 +652,7 @@
             let globalTotalInvestment = 0;
             let globalTotalRealizedRevenue = 0;
             let globalTotalRealizedCostOfSoldGoods = 0;
-            let globalTotalSoldQuantity = 0; // NEW: Global accumulator
+            let globalTotalSoldQuantity = 0; 
 
             items.forEach(item => {
                 const retailCost = parseFloat(item.retailCost);
@@ -599,7 +663,7 @@
                 globalTotalInvestment += (currentStock * retailCost);
                 globalTotalRealizedRevenue += (salesQuantity * sellingPrice);
                 globalTotalRealizedCostOfSoldGoods += (salesQuantity * retailCost);
-                globalTotalSoldQuantity += salesQuantity; // ACCUMULATE
+                globalTotalSoldQuantity += salesQuantity; 
             });
             
             const finalTotalProfit = globalTotalRealizedRevenue - globalTotalRealizedCostOfSoldGoods;
@@ -609,7 +673,7 @@
             // UPDATE UI ELEMENTS
             totalInvestmentEl.textContent = `$${globalTotalInvestment.toFixed(2)}`;
             totalRevenueEl.textContent = `$${globalTotalRealizedRevenue.toFixed(2)}`;
-            totalSoldQtyEl.textContent = globalTotalSoldQuantity; // UPDATED
+            totalSoldQtyEl.textContent = globalTotalSoldQuantity; 
             totalProfitEl.textContent = `$${finalTotalProfit.toFixed(2)}`;
             
             if (finalTotalProfit < 0) {
@@ -690,6 +754,11 @@
             submitButton.textContent = 'Add Item to Inventory';
             submitButton.classList.remove('bg-orange-500', 'hover:bg-orange-600');
             submitButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            
+            // Collapse the form after adding/updating
+            if (formSection.classList.contains('is-expanded')) {
+                toggleForm();
+            }
         });
 
         // Start the application
