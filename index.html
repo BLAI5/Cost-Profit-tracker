@@ -11,6 +11,10 @@
     <style>
         @import url('https://fonts.fonts.gstatic.com/s/inter/v13/UuauZp2EwK8y4XJc5_rSzhwV58T6_J1x1Q.woff2');
         body { font-family: 'Inter', sans-serif; }
+        /* Custom style for the requested header background color (light pink/beige) */
+        .header-bg {
+            background-color: #fcf8f5; /* Light pink/beige color approximation */
+        }
         /* Style for the collapsible panel */
         .collapsible-panel {
             max-height: 0;
@@ -22,20 +26,38 @@
             padding-top: 1.5rem; /* p-6 equivalent for the top padding */
             padding-bottom: 1.5rem; /* p-6 equivalent for the bottom padding */
         }
+        /* Style for the fixed Back to Top button */
+        #back-to-top-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        #back-to-top-btn.show {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-6 md:p-8">
 
     <div id="app-container" class="max-w-4xl mx-auto">
-        <header class="mb-8 p-4 bg-white rounded-lg shadow-lg">
-            <!-- Updated Header Title -->
-            <h1 class="text-3xl font-bold text-gray-800 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 text-indigo-600">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.124.75.75 0 0 1-.72 2.115.75.75 0 0 0 .15 1.13 1 1 0 0 0 .524.364l4.475 1.571a.75.75 0 0 0 .73-.133.75.75 0 0 0 .182-.578v-4.18a.75.75 0 0 1 .53-.721L12 15.346l1.378-.492a.75.75 0 0 1 .53.722v4.18a.75.75 0 0 0 .182.578.75.75 0 0 0 .73.133l4.475-1.571a.75.75 0 0 0 .524-.364.75.75 0 0 0-.72-2.115 3 3 0 0 0-5.78-1.124V5.722a.75.75 0 0 0-1.5 0v10.402Z" />
-                </svg>
+        <!-- HEADER: Updated with custom background, removed initial icon, added logo image to the right -->
+        <header class="header-bg mb-8 p-4 rounded-lg shadow-lg">
+            <h1 class="text-4xl font-bold text-gray-800 flex items-center justify-between">
                 Jessica B Designing
+                
+                <!-- Logo Image: PATH UPDATED to assume the image is in assets/jessicab_logo.png -->
+                <img src="assets/jessicab_logo.png" 
+                     alt="Jessica B Designing Logo" 
+                     class="h-20 w-30 rounded-lg object-contain border-2 border-amber-200 shadow-sm"
+                     onerror="this.onerror=null;this.src='https://placehold.co/120x80/fcf8f5/886050?text=Logo+Error';"
+                     title="JessaB DESIGNING Logo"
+                >
             </h1>
-            <!-- Removed text and auth-info -->
         </header>
 
         <!-- Loading Indicator -->
@@ -198,6 +220,15 @@
 
     </div>
 
+    <!-- NEW: Back to Top Button -->
+    <button id="back-to-top-btn" onclick="scrollToTop()" class="p-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5" />
+        </svg>
+    </button>
+    <!-- END NEW: Back to Top Button -->
+
     <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -235,15 +266,14 @@
 
         // UI elements
         const loadingEl = document.getElementById('loading');
-        const formToggleBtn = document.getElementById('toggle-form-btn'); // NEW
-        const formToggleText = document.getElementById('form-toggle-text'); // NEW
-        const formToggleIcon = document.getElementById('form-toggle-icon'); // NEW
+        const formToggleBtn = document.getElementById('toggle-form-btn'); 
+        const formToggleText = document.getElementById('form-toggle-text'); 
+        const formToggleIcon = document.getElementById('form-toggle-icon'); 
         const formSection = document.getElementById('input-form-section');
         const listSection = document.getElementById('inventory-list-section');
         const inventoryForm = document.getElementById('inventory-form');
         const inventoryContainer = document.getElementById('inventory-container');
         const noItemsMessage = document.getElementById('no-items-message');
-        // Removed userIdDisplay
         const financialSummary = document.getElementById('financial-summary');
         const totalInvestmentEl = document.getElementById('total-investment');
         const totalRevenueEl = document.getElementById('total-revenue');
@@ -251,14 +281,18 @@
         const searchSection = document.getElementById('search-section'); 
         const searchInput = document.getElementById('search-input');
         const totalSoldQtyEl = document.getElementById('total-sold-qty');
-        const scrollToSummaryBtn = document.getElementById('scroll-to-summary-btn'); // NEW
-        const formToggleSection = document.getElementById('form-toggle-section'); // NEW
+        const scrollToSummaryBtn = document.getElementById('scroll-to-summary-btn'); 
+        const formToggleSection = document.getElementById('form-toggle-section'); 
 
         // Modal elements
         const modalEl = document.getElementById('custom-modal');
         const modalTitleEl = document.getElementById('modal-title');
         const modalContentEl = document.getElementById('modal-content');
         const modalButtonContainer = document.getElementById('modal-button-container');
+        
+        // NEW: Back to Top Button element initialization
+        const backToTopBtn = document.getElementById('back-to-top-btn');
+
 
         // State for editing
         let editingDocId = null;
@@ -300,7 +334,7 @@
                 editingDocId = null;
                 const submitButton = inventoryForm.querySelector('button[type="submit"]');
                 submitButton.textContent = 'Add Item to Inventory';
-                submitButton.classList.remove('bg-orange-500', 'hover:bg-orange-600');
+                submitButton.classList.remove('bg-orange-500', 'hover:-bg-orange-600');
                 submitButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
             }
         }
@@ -309,7 +343,11 @@
         function scrollToSummary() {
              financialSummary.scrollIntoView({ behavior: 'smooth' });
         }
-
+        
+        // NEW: Function to handle scrolling to top (made a property of window for onclick access)
+        window.scrollToTop = function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         function showModal(title, content) {
             // 1. Ensure the button container is reset to the default OK button HTML
@@ -341,6 +379,17 @@
                 }
             }
         }
+        
+        // NEW: Scroll event listener logic to show/hide the button
+        function handleScroll() {
+            if (backToTopBtn) {
+                if (window.scrollY > 300) { // Show button after scrolling 300px down
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            }
+        }
 
 
         // --- FIREBASE INITIALIZATION & AUTHENTICATION ---
@@ -368,7 +417,6 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
-                        // Removed userIdDisplay update
                         
                         // Show the app UI and start listening to data
                         loadingEl.classList.add('hidden');
@@ -378,15 +426,14 @@
                         searchSection.classList.remove('hidden');
                         loadProducts();
                         
-                        // Attach listeners after auth/UI setup
+                        // Attach listeners
                         searchInput.addEventListener('input', () => {
                             renderInventory(currentItems);
                         });
                         
                         formToggleBtn.addEventListener('click', toggleForm);
                         scrollToSummaryBtn.addEventListener('click', scrollToSummary);
-
-
+                        
                     } else {
                         // Handle failure case if needed, but for anonymous sign-in, it usually succeeds.
                         loadingEl.classList.add('hidden');
@@ -569,10 +616,10 @@
 
             // Initialize accumulators for totals
             // NOTE: Only used for calculating totals across ALL items, not filtered.
-            let totalInvestment = 0;
-            let totalRealizedRevenue = 0;
-            let totalRealizedCostOfSoldGoods = 0;
-            let totalSoldQuantity = 0; 
+            let globalTotalInvestment = 0;
+            let globalTotalRealizedRevenue = 0;
+            let globalTotalRealizedCostOfSoldGoods = 0;
+            let globalTotalSoldQuantity = 0; 
 
             if (filteredItems.length === 0) {
                 noItemsMessage.classList.remove('hidden');
@@ -649,10 +696,6 @@
             });
 
             // --- START: GLOBAL FINANCIAL SUMMARY CALCULATION (Uses ALL items) ---
-            let globalTotalInvestment = 0;
-            let globalTotalRealizedRevenue = 0;
-            let globalTotalRealizedCostOfSoldGoods = 0;
-            let globalTotalSoldQuantity = 0; 
 
             items.forEach(item => {
                 const retailCost = parseFloat(item.retailCost);
@@ -760,6 +803,11 @@
                 toggleForm();
             }
         });
+
+        // NEW: Register the scroll listener immediately so the button appears promptly.
+        if (backToTopBtn) {
+            window.addEventListener('scroll', handleScroll);
+        }
 
         // Start the application
         window.onload = initializeFirebase;
