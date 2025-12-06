@@ -182,9 +182,23 @@
         let app, db, auth, userId = null;
         let currentItems = []; // Stores the latest snapshot data for quick lookups
 
+        // User-provided Firebase Configuration (used as a fallback for local testing)
+        const defaultFirebaseConfig = {
+            apiKey: "AIzaSyBiLhE-lIBpw5vKH5R-qJ4GJk3Xw-cLQpE",
+            authDomain: "jbdinventory1.firebaseapp.com",
+            projectId: "jbdinventory1",
+            storageBucket: "jbdinventory1.firebasestorage.app",
+            messagingSenderId: "54830668934",
+            appId: "1:54830668934:web:90e3cb6ad381347f4a4507",
+            measurementId: "G-X3M70499ZG"
+        };
+        
         // Configuration retrieval
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        // Use environment config if available, otherwise use the user's provided default config
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : defaultFirebaseConfig; 
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         const COLLECTION_PATH = `artifacts/${appId}/public/data/apparel_inventory`;
@@ -247,9 +261,10 @@
 
         // --- FIREBASE INITIALIZATION & AUTHENTICATION ---
         async function initializeFirebase() {
-            if (!firebaseConfig) {
-                console.error("Firebase config is missing.");
-                showModal("Configuration Error", "Firebase configuration is missing. Cannot initialize the app.");
+            // Check if firebaseConfig is valid (either from runtime or fallback)
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                console.error("Firebase config is missing or invalid.");
+                showModal("Configuration Error", "Firebase configuration is missing or invalid. Cannot initialize the app.");
                 return;
             }
 
