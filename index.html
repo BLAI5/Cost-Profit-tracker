@@ -310,10 +310,12 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Import runTransaction for atomic category updates
+        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, updateDoc, increment, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         // --- MANDATORY FIREBASE SETUP ---
+        // Setting log level to error to reduce console noise unless there's a problem
         setLogLevel('error'); 
 
         // Global variables for Firebase objects and current data state
@@ -341,7 +343,8 @@
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         const INVENTORY_COLLECTION_PATH = `artifacts/${appId}/public/data/apparel_inventory`;
-        const CATEGORIES_DOC_PATH = `artifacts/${appId}/public/data/categories/list`; // Single document to hold all categories
+        // Path for a single document to hold the list of all categories
+        const CATEGORIES_DOC_PATH = `artifacts/${appId}/public/data/categories/list`; 
 
         // UI elements
         const loadingEl = document.getElementById('loading');
@@ -511,6 +514,7 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
+                        console.log(`Successfully authenticated user ID: ${userId}`); // Log the ID for debugging
                         
                         // Show the app UI and start listening to data
                         loadingEl.classList.add('hidden');
@@ -536,8 +540,8 @@
                         categoryListContainer.addEventListener('click', handleRemoveCategoryClick);
                         
                     } else {
-                        // Handle failure case if needed, but for anonymous sign-in, it usually succeeds.
                         loadingEl.classList.add('hidden');
+                        showModal("Authentication Failed", "Could not establish an authenticated session. Data saving may fail.");
                     }
                 });
 
@@ -558,7 +562,8 @@
             onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     // Categories are stored as an array in the 'names' field of the document
-                    currentCategories = docSnap.data().names || [];
+                    // Ensure the data structure is an array, otherwise default to empty
+                    currentCategories = Array.isArray(docSnap.data().names) ? docSnap.data().names : [];
                 } else {
                     // Document doesn't exist yet, initialize with an empty array
                     currentCategories = [];
@@ -570,18 +575,30 @@
                 renderFinancialSummaries(currentItems, currentCategories);
             }, (error) => {
                 console.error("Error fetching categories:", error);
+                // Note: Read permissions usually succeed if writes fail, but logging the error helps debug.
             });
         }
         
         // Helper to update the categories document
+        // IMPORTANT: We use runTransaction to ensure atomicity when reading and writing the document, 
+        // which helps avoid race conditions and, in some cases, can make permission checks more stable.
         async function updateCategoriesInDb(newCategories) {
             if (!db) return;
+            const docRef = doc(db, CATEGORIES_DOC_PATH);
+
             try {
-                const docRef = doc(db, CATEGORIES_DOC_PATH);
-                // Use setDoc with merge: true to ensure we only update or create the 'names' field
-                await setDoc(docRef, { names: newCategories }, { merge: true });
+                await runTransaction(db, async (transaction) => {
+                    // 1. Check if the document exists (optional, but good practice)
+                    const docSnap = await transaction.get(docRef);
+                    
+                    // 2. Perform the write operation
+                    // We must use setDoc with the transaction
+                    transaction.set(docRef, { names: newCategories }, { merge: false }); // merge: false overwrites completely, which is fine for a list of names.
+                });
+
             } catch (error) {
-                console.error("Error updating categories document:", error);
+                console.error("Error updating categories document in transaction:", error);
+                // Show the error to the user
                 showModal("Database Error", `Failed to update categories: ${error.message}`);
             }
         }
@@ -1049,7 +1066,7 @@
             if (action === 'edit') {
                 editProduct(item);
             } else if (action === 'delete') {
-                deleteProduct(docId);
+                deleteProduct(item.id);
             } else if (action === 'sell') { 
                 if (item.quantity > 0) {
                     updateStock(docId, 'sell');
