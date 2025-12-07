@@ -311,7 +311,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         // Import runTransaction for atomic category updates
-        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, updateDoc, increment, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, updateDoc, increment, getDoc, runTransaction, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         // --- MANDATORY FIREBASE SETUP ---
@@ -321,6 +321,7 @@
         // Global variables for Firebase objects and current data state
         let app, db, auth, userId = null;
         let currentItems = []; // Stores the latest inventory snapshot data
+        let currentSales = []; // NEW: Stores the list of all historical sales transactions
         let currentCategories = []; // Stores the latest categories snapshot data
 
         // User-provided Firebase Configuration (used as a fallback for local testing)
@@ -342,9 +343,12 @@
             : defaultFirebaseConfig; 
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
+        // Firestore Paths
         const INVENTORY_COLLECTION_PATH = `artifacts/${appId}/public/data/apparel_inventory`;
-        // Path for a single document to hold the list of all categories
         const CATEGORIES_DOC_PATH = `artifacts/${appId}/public/data/categories/list`; 
+        // NEW: Separate collection for all sales transactions to lock in financial data
+        const SALES_LEDGER_COLLECTION_PATH = `artifacts/${appId}/public/data/sales_ledger`;
+
 
         // UI elements
         const loadingEl = document.getElementById('loading');
@@ -368,7 +372,7 @@
         const scrollToSummaryBtn = document.getElementById('scroll-to-summary-btn'); 
         const formToggleSection = document.getElementById('form-toggle-section'); 
         
-        // New Category UI elements
+        // Category UI elements
         const categoriesSelect = document.getElementById('categories');
         const manageCategoriesBtn = document.getElementById('manage-categories-btn');
         const categoryModal = document.getElementById('category-modal');
@@ -384,7 +388,7 @@
         const modalContentEl = document.getElementById('modal-content');
         const modalButtonContainer = document.getElementById('modal-button-container');
         
-        // NEW: Back to Top Button element initialization
+        // Back to Top Button element initialization
         const backToTopBtn = document.getElementById('back-to-top-btn');
 
 
@@ -441,7 +445,7 @@
              financialSummaryContainer.scrollIntoView({ behavior: 'smooth' });
         }
         
-        // NEW: Function to handle scrolling to top (made a property of window for onclick access)
+        // Function to handle scrolling to top
         window.scrollToTop = function() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -477,7 +481,7 @@
             }
         }
         
-        // NEW: Scroll event listener logic to show/hide the button
+        // Scroll event listener logic to show/hide the button
         function handleScroll() {
             if (backToTopBtn) {
                 if (window.scrollY > 300) { // Show button after scrolling 300px down
@@ -522,8 +526,9 @@
                         listSection.classList.remove('hidden');
                         financialSummary.classList.remove('hidden'); 
                         searchSection.classList.remove('hidden');
-                        loadCategories(); // Load categories first
-                        loadProducts();
+                        loadCategories(); // Load categories
+                        loadProducts(); // Load inventory items
+                        loadSalesLedger(); // NEW: Load historical sales
                         
                         // Attach listeners
                         searchInput.addEventListener('input', () => {
@@ -551,7 +556,7 @@
             }
         }
         
-        // --- CATEGORY CRUD OPERATIONS & UI ---
+        // --- CATEGORY CRUD OPERATIONS & UI (UNCHANGED) ---
         
         // Load categories in real-time
         function loadCategories() {
@@ -561,44 +566,33 @@
 
             onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
-                    // Categories are stored as an array in the 'names' field of the document
-                    // Ensure the data structure is an array, otherwise default to empty
                     currentCategories = Array.isArray(docSnap.data().names) ? docSnap.data().names : [];
                 } else {
-                    // Document doesn't exist yet, initialize with an empty array
                     currentCategories = [];
                 }
                 
                 renderCategorySelect(currentCategories);
                 renderCategoryManagementList(currentCategories);
                 // Trigger re-render of inventory to update financial summaries based on new categories
-                renderFinancialSummaries(currentItems, currentCategories);
+                renderFinancialSummaries(currentItems, currentSales, currentCategories);
             }, (error) => {
                 console.error("Error fetching categories:", error);
-                // Note: Read permissions usually succeed if writes fail, but logging the error helps debug.
             });
         }
         
         // Helper to update the categories document
-        // IMPORTANT: We use runTransaction to ensure atomicity when reading and writing the document, 
-        // which helps avoid race conditions and, in some cases, can make permission checks more stable.
         async function updateCategoriesInDb(newCategories) {
             if (!db) return;
             const docRef = doc(db, CATEGORIES_DOC_PATH);
 
             try {
                 await runTransaction(db, async (transaction) => {
-                    // 1. Check if the document exists (optional, but good practice)
                     const docSnap = await transaction.get(docRef);
-                    
-                    // 2. Perform the write operation
-                    // We must use setDoc with the transaction
-                    transaction.set(docRef, { names: newCategories }, { merge: false }); // merge: false overwrites completely, which is fine for a list of names.
+                    transaction.set(docRef, { names: newCategories }, { merge: false });
                 });
 
             } catch (error) {
                 console.error("Error updating categories document in transaction:", error);
-                // Show the error to the user
                 showModal("Database Error", `Failed to update categories: ${error.message}`);
             }
         }
@@ -609,7 +603,6 @@
             const newName = newCategoryNameInput.value.trim();
             if (!newName) return;
             
-            // Normalize for case-insensitive comparison
             const normalizedName = newName.toLowerCase();
 
             if (currentCategories.map(c => c.toLowerCase()).includes(normalizedName)) {
@@ -687,7 +680,7 @@
 
 
         
-        // --- INVENTORY CRUD OPERATIONS ---
+        // --- INVENTORY & SALES LEDGER CRUD OPERATIONS ---
 
         // 1. Save (Add/Update) Product
         async function saveProduct(productData, docId = null) {
@@ -701,6 +694,9 @@
                     const docRef = doc(db, INVENTORY_COLLECTION_PATH, docId);
                     await updateDoc(docRef, productData);
                 } else {
+                    // For new items, ensure quantity is set correctly and salesQuantity is removed.
+                    // salesQuantity is no longer stored on the item document.
+                    delete productData.salesQuantity; 
                     await addDoc(collection(db, INVENTORY_COLLECTION_PATH), productData);
                 }
                 showModal("Success!", `Inventory item ${docId ? 'updated' : 'added'} successfully.`);
@@ -710,36 +706,94 @@
             }
         }
         
-        // 2. Update Stock/Sales Quantity
-        async function updateStock(docId, changeType) {
+        // 2. Load Sales Ledger (Real-time)
+        function loadSalesLedger() {
             if (!db) return;
 
+            const q = query(collection(db, SALES_LEDGER_COLLECTION_PATH));
+
+            onSnapshot(q, (snapshot) => {
+                const sales = [];
+                snapshot.forEach((doc) => {
+                    sales.push({ 
+                        id: doc.id, 
+                        ...doc.data() 
+                    });
+                });
+                
+                currentSales = sales; // Update the global state
+                // Re-render inventory to update financial summaries
+                renderInventory(currentItems); 
+            }, (error) => {
+                console.error("Error fetching sales ledger:", error);
+                showModal("Data Error", `Could not load sales ledger: ${error.message}`);
+            });
+        }
+
+        // 3. Handle Sale or Restock (Updated for Ledger)
+        async function handleSaleOrRestock(docId, changeType) {
+            if (!db) return;
+
+            const docRef = doc(db, INVENTORY_COLLECTION_PATH, docId);
+
             try {
-                const docRef = doc(db, INVENTORY_COLLECTION_PATH, docId);
-                let updatePayload = {};
+                await runTransaction(db, async (transaction) => {
+                    const itemSnap = await transaction.get(docRef);
+                    if (!itemSnap.exists()) {
+                        throw new Error("Item does not exist.");
+                    }
+                    const item = itemSnap.data();
+                    const currentStock = parseInt(item.quantity, 10);
+                    
+                    if (changeType === 'sell') {
+                        if (currentStock <= 0) {
+                            throw new Error("Cannot record a sale: Stock quantity is zero.");
+                        }
 
-                if (changeType === 'sell') {
-                    updatePayload = {
-                        quantity: increment(-1),
-                        salesQuantity: increment(1)
-                    };
-                } else if (changeType === 'restock') {
-                    updatePayload = {
-                        quantity: increment(1)
-                    };
-                } else {
-                    return;
-                }
+                        // 1. Decrement quantity in inventory
+                        transaction.update(docRef, {
+                            quantity: increment(-1)
+                        });
 
-                await updateDoc(docRef, updatePayload);
+                        // 2. Record immutable sale transaction in the ledger
+                        const saleData = {
+                            inventoryItemId: docId,
+                            productName: item.productName, // For easy reporting/filtering
+                            categories: item.categories || [], // Lock in categories at time of sale
+                            costAtSale: item.retailCost, // LOCKED IN COST
+                            priceAtSale: item.sellingPrice, // LOCKED IN PRICE
+                            quantitySold: 1,
+                            saleDate: Date.now(),
+                        };
+                        
+                        const ledgerRef = collection(db, SALES_LEDGER_COLLECTION_PATH);
+                        // We use addDoc outside the transaction to create a new ledger document, 
+                        // or we use a ref and transaction.set/update if we want it strictly atomic 
+                        // with inventory update. For simplicity and atomicity, we'll use transaction.set
+                        // with a new unique ID in the transaction.
+
+                        // Since runTransaction only supports reads/writes on existing or known refs, 
+                        // we must generate the ref first (using doc(collectionRef) without ID 
+                        // to get a new ID) and use transaction.set.
+                        const newSaleRef = doc(ledgerRef);
+                        transaction.set(newSaleRef, saleData);
+
+
+                    } else if (changeType === 'restock') {
+                        // Only update quantity in inventory
+                        transaction.update(docRef, {
+                            quantity: increment(1)
+                        });
+                    }
+                });
             } catch (error) {
-                console.error(`Error updating stock (${changeType}):`, error);
+                console.error(`Error handling stock change (${changeType}):`, error);
                 showModal("Update Error", `Failed to update inventory: ${error.message}`);
             }
         }
 
 
-        // 3. Delete Product
+        // 4. Delete Product
         async function deleteProduct(docId) {
             if (!db) return;
 
@@ -789,6 +843,7 @@
 
             if (await confirmDelete()) {
                 try {
+                    // Note: We are NOT deleting sales ledger entries, so historical financials remain accurate.
                     await deleteDoc(doc(db, INVENTORY_COLLECTION_PATH, docId));
                     showModal("Deleted", "Item successfully removed from inventory.");
                 } catch (error) {
@@ -798,7 +853,7 @@
             }
         }
 
-        // 4. Load Products (Real-time with onSnapshot)
+        // 5. Load Products (Real-time with onSnapshot)
         function loadProducts() {
             if (!db) return;
 
@@ -809,7 +864,6 @@
                 snapshot.forEach((doc) => {
                     items.push({ 
                         id: doc.id, 
-                        // Ensure categories is an array, default to empty
                         categories: doc.data().categories || [], 
                         ...doc.data() 
                     });
@@ -831,6 +885,7 @@
             document.getElementById('retail-cost').value = item.retailCost;
             document.getElementById('selling-price').value = item.sellingPrice;
             document.getElementById('size').value = item.size;
+            // The quantity input updates the CURRENT stock, which is fine.
             document.getElementById('quantity').value = item.quantity; 
             document.getElementById('color').value = item.color;
 
@@ -866,8 +921,8 @@
                 return searchString.includes(searchTerm);
             });
 
-            // Calculate and render all financial summaries
-            renderFinancialSummaries(items, currentCategories);
+            // Calculate and render all financial summaries based on ledger data
+            renderFinancialSummaries(items, currentSales, currentCategories);
 
             if (filteredItems.length === 0) {
                 noItemsMessage.classList.remove('hidden');
@@ -879,14 +934,27 @@
             filteredItems.sort((a, b) => a.productName.localeCompare(b.productName));
 
             filteredItems.forEach(item => {
-                // Calculations
+                // Calculations based on CURRENT item data (for display)
                 const retailCost = parseFloat(item.retailCost);
                 const sellingPrice = parseFloat(item.sellingPrice);
                 const currentStock = parseInt(item.quantity, 10);
-                const salesQuantity = parseInt(item.salesQuantity || 0, 10); 
                 
+                // NEW: Find realized sales quantity and profit from the ledger for THIS ITEM
+                const itemSales = currentSales.filter(sale => sale.inventoryItemId === item.id);
+                const salesQuantity = itemSales.length; 
+                
+                // --- NEW PROFIT MARGIN CALCULATION ---
                 const grossProfitPerUnit = sellingPrice - retailCost;
-                const totalProfitFromSales = grossProfitPerUnit * salesQuantity; 
+                let profitMarginPercentage = 0;
+                if (sellingPrice > 0) {
+                    profitMarginPercentage = (grossProfitPerUnit / sellingPrice) * 100;
+                }
+                const marginColor = profitMarginPercentage >= 30 ? 'text-green-700' : (profitMarginPercentage > 0 ? 'text-yellow-700' : 'text-red-700');
+                // ------------------------------------
+
+
+                // Sum up realized profit and revenue from the ledger for this specific item
+                const totalProfitFromSales = itemSales.reduce((sum, sale) => sum + (sale.priceAtSale - sale.costAtSale), 0);
                 
                 const totalProfitColor = totalProfitFromSales > 0 ? 'text-green-700' : (totalProfitFromSales < 0 ? 'text-red-700' : 'text-gray-700');
                 
@@ -906,27 +974,35 @@
                             <div class="flex flex-wrap mt-1 text-sm">${categoryTags}</div>
                             
                             <div class="mt-3 grid grid-cols-2 text-sm gap-y-1">
-                                <!-- Updated display for Stock and Sold -->
+                                <!-- Stock and Sold (from Ledger total) -->
                                 <div><span class="font-medium text-gray-600">Stock Qty:</span> <span class="text-indigo-600 font-semibold">${currentStock}</span></div>
                                 <div><span class="font-medium text-gray-600">Sold Qty:</span> <span class="text-indigo-600 font-semibold">${salesQuantity}</span></div>
                                 
-                                <div><span class="font-medium text-gray-600">Retail Cost:</span> $${retailCost.toFixed(2)}</div>
-                                <div><span class="font-medium text-gray-600">Selling Price:</span> $${sellingPrice.toFixed(2)}</div>
+                                <!-- Current Cost/Price (for what is in stock) -->
+                                <div><span class="font-medium text-gray-600">Current Cost:</span> $${retailCost.toFixed(2)}</div>
+                                <div><span class="font-medium text-gray-600">Current Price:</span> $${sellingPrice.toFixed(2)}</div>
                             </div>
                         </div>
 
                         <!-- Financials & Actions (Right Side) -->
                         <div class="sm:ml-4 sm:w-64 flex flex-col space-y-2 mt-4 sm:mt-0">
-                            <!-- Total Profit from Sales -->
+                            
+                            <!-- Total Profit from Sales (from Ledger) -->
                             <div class="bg-green-50 p-2 rounded-md">
                                 <p class="text-xs font-medium text-gray-600">Total Profit (Realized)</p>
                                 <p class="${totalProfitColor} font-bold text-lg">$${totalProfitFromSales.toFixed(2)}</p>
                             </div>
                             
-                            <!-- Profit Per Unit -->
-                            <div class="bg-indigo-50 p-2 rounded-md">
-                                <p class="text-xs font-medium text-gray-600">Profit/Unit</p>
-                                <p class="${grossProfitPerUnit > 0 ? 'text-green-700' : 'text-red-700'} font-bold text-lg">$${grossProfitPerUnit.toFixed(2)}</p>
+                            <!-- Profit Per Unit and Profit Margin % (based on CURRENT details) -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-indigo-50 p-2 rounded-md">
+                                    <p class="text-xs font-medium text-gray-600">Profit/Unit</p>
+                                    <p class="${grossProfitPerUnit > 0 ? 'text-green-700' : 'text-red-700'} font-bold text-sm">$${grossProfitPerUnit.toFixed(2)}</p>
+                                </div>
+                                <div class="bg-indigo-100 p-2 rounded-md border-2 border-indigo-200">
+                                    <p class="text-xs font-medium text-gray-600">Margin %</p>
+                                    <p class="${marginColor} font-bold text-sm">${profitMarginPercentage.toFixed(1)}%</p>
+                                </div>
                             </div>
 
                             <!-- Sales/Stock Buttons -->
@@ -951,43 +1027,43 @@
             });
         }
         
-        function renderFinancialSummaries(items, categories) {
-            // --- 1. GLOBAL FINANCIAL SUMMARY CALCULATION ---
+        function renderFinancialSummaries(items, sales, categories) {
+            // --- 1. GLOBAL FINANCIAL SUMMARY CALCULATION (Based on Sales Ledger) ---
             let globalTotalInvestment = 0;
             let globalTotalRealizedRevenue = 0;
             let globalTotalRealizedCostOfSoldGoods = 0;
             let globalTotalSoldQuantity = 0; 
             
             // --- 2. CATEGORY-SPECIFIC FINANCIAL SUMMARY SETUP ---
-            // Use a Map to store category totals, keyed by category name
             const categoryTotals = new Map();
             categories.forEach(cat => {
-                categoryTotals.set(cat, {
-                    soldQty: 0,
-                    revenue: 0,
-                    cost: 0,
-                });
+                categoryTotals.set(cat, { soldQty: 0, revenue: 0, cost: 0 });
             });
 
+            // Calculate Stock Investment (Still based on CURRENT inventory cost)
             items.forEach(item => {
                 const retailCost = parseFloat(item.retailCost);
-                const sellingPrice = parseFloat(item.sellingPrice);
                 const currentStock = parseInt(item.quantity, 10);
-                const salesQuantity = parseInt(item.salesQuantity || 0, 10); 
-                
-                // Accumulate Global Totals
                 globalTotalInvestment += (currentStock * retailCost);
-                globalTotalRealizedRevenue += (salesQuantity * sellingPrice);
-                globalTotalRealizedCostOfSoldGoods += (salesQuantity * retailCost);
-                globalTotalSoldQuantity += salesQuantity; 
+            });
+            
+            // Calculate Realized Financials (Based on Ledger)
+            sales.forEach(sale => {
+                const cost = sale.costAtSale;
+                const price = sale.priceAtSale;
+                const qty = sale.quantitySold; 
+
+                globalTotalSoldQuantity += qty;
+                globalTotalRealizedRevenue += (price * qty);
+                globalTotalRealizedCostOfSoldGoods += (cost * qty);
                 
-                // Accumulate Category Totals
-                (item.categories || []).forEach(cat => {
+                // Accumulate Category Totals (using categories locked in at time of sale)
+                (sale.categories || []).forEach(cat => {
                     if (categoryTotals.has(cat)) {
                         const totals = categoryTotals.get(cat);
-                        totals.soldQty += salesQuantity;
-                        totals.revenue += (salesQuantity * sellingPrice);
-                        totals.cost += (salesQuantity * retailCost);
+                        totals.soldQty += qty;
+                        totals.revenue += (price * qty);
+                        totals.cost += (cost * qty);
                     }
                 });
             });
@@ -1045,7 +1121,9 @@
             });
             
             if (categories.length > 0) {
-                 categorySummariesEl.innerHTML = '<h2 class="text-xl font-bold text-gray-800 mb-4">Category-Specific Financials</h2>' + categorySummariesEl.innerHTML;
+                 categorySummariesEl.innerHTML = '<h2 class="text-xl font-bold text-gray-800 mb-4">Category-Specific Financials (Realized)</h2>' + categorySummariesEl.innerHTML;
+            } else {
+                 categorySummariesEl.innerHTML = '<p class="text-gray-500 text-center py-4">Add categories to track category-specific financials.</p>';
             }
         }
         
@@ -1068,13 +1146,15 @@
             } else if (action === 'delete') {
                 deleteProduct(item.id);
             } else if (action === 'sell') { 
+                // Call the new combined handler
                 if (item.quantity > 0) {
-                    updateStock(docId, 'sell');
+                    handleSaleOrRestock(docId, 'sell');
                 } else {
                     showModal("Stock Zero", "Cannot record a sale: Stock quantity is already 0.");
                 }
             } else if (action === 'restock') { 
-                updateStock(docId, 'restock');
+                // Call the new combined handler
+                handleSaleOrRestock(docId, 'restock');
             }
         });
 
@@ -1105,15 +1185,15 @@
 
             const productData = {
                 productName,
-                retailCost: retailCost,
-                sellingPrice: sellingPrice,
+                retailCost: retailCost, // Current Cost
+                sellingPrice: sellingPrice, // Current Price
                 size,
-                quantity: quantity, 
-                salesQuantity: editingDocId ? (currentItems.find(i => i.id === editingDocId)?.salesQuantity || 0) : 0, 
+                quantity: quantity, // Current Stock
                 color,
-                categories: selectedCategories, // NEW: Include categories
+                categories: selectedCategories,
                 timestamp: Date.now(), 
             };
+            // Note: salesQuantity is no longer stored on the item document.
 
             await saveProduct(productData, editingDocId);
             
@@ -1134,7 +1214,7 @@
             }
         });
 
-        // NEW: Register the scroll listener immediately so the button appears promptly.
+        // Register the scroll listener
         if (backToTopBtn) {
             window.addEventListener('scroll', handleScroll);
         }
