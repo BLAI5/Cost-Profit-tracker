@@ -56,63 +56,16 @@
             font-size: 0.875rem;
             line-height: 1.25rem;
         }
-
-        /* --- PRINT STYLES --- */
-        @media print {
-            /* Hide UI elements that shouldn't be on paper */
-            #form-toggle-section, 
-            #input-form-section, 
-            #search-section, 
-            #back-to-top-btn, 
-            #scroll-to-summary-btn, 
-            .no-print,
-            #custom-modal,
-            #category-modal,
-            button {
-                display: none !important;
-            }
-
-            /* Adjust container for paper */
-            body {
-                background-color: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .max-w-4xl {
-                max-width: 100% !important;
-                width: 100% !important;
-            }
-            #app-container {
-                padding: 0 !important;
-            }
-            
-            /* Expand hidden histories for printing if desired, or keep hidden */
-            [id^="transaction-list-"] {
-                display: block !important;
-                max-height: none !important;
-                overflow: visible !important;
-            }
-
-            /* Prevent page breaks inside cards */
-            .bg-white {
-                box-shadow: none !important;
-                border: 1px solid #eee !important;
-                page-break-inside: avoid;
-            }
-
-            header {
-                box-shadow: none !important;
-                border-bottom: 2px solid #333 !important;
-            }
-        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-6 md:p-8">
     <div id="app-container" class="max-w-4xl mx-auto">
-        <!-- HEADER -->
+        <!-- HEADER: Updated with custom background, removed initial icon, added logo image to the right -->
         <header class="header-bg mb-8 p-4 rounded-lg shadow-lg">
             <h1 class="text-4xl font-bold text-gray-800 flex items-center justify-between">
                 JessaB Designing
+                
+                <!-- Logo Image: PATH UPDATED to assume the image is in assets/jessicab_logo.png -->
                 <img src="assets/jessicab_logo.png" 
                      alt="Jessica B Designing Logo" 
                      class="h-20 w-30 rounded-lg object-contain border-2 border-amber-200 shadow-sm"
@@ -121,7 +74,6 @@
                 >
             </h1>
         </header>
-
         <!-- Loading Indicator -->
         <div id="loading" class="text-center p-8 text-indigo-600 font-medium">
             <svg class="animate-spin h-5 w-5 mr-3 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -141,44 +93,62 @@
             </button>
         </div>
         
-        <!-- Inventory Form Section -->
+        <!-- Inventory Form Section (Now Collapsible) -->
         <div id="input-form-section" class="bg-white rounded-lg shadow-xl mb-8 collapsible-panel p-0">
             <div class="px-6 pb-6">
                  <h2 class="text-xl font-semibold text-gray-700 mb-4">Add New Item / Edit Details</h2>
                  <form id="inventory-form" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                     
+                     <!-- Product Name -->
                      <div class="col-span-2 sm:col-span-3">
                          <label for="product-name" class="block text-sm font-medium text-gray-700">Product Name</label>
                          <input type="text" id="product-name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
                      </div>
+         
+                     <!-- Retail Cost (COGS) -->
                      <div>
                          <label for="retail-cost" class="block text-sm font-medium text-gray-700">Retail Cost ($)</label>
                          <input type="number" step="0.01" id="retail-cost" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="0">
                      </div>
+         
+                     <!-- Selling Price -->
                      <div>
                          <label for="selling-price" class="block text-sm font-medium text-gray-700">Selling Price ($)</label>
                          <input type="number" step="0.01" id="selling-price" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="0">
                      </div>
+         
+                     <!-- Size -->
                      <div>
                          <label for="size" class="block text-sm font-medium text-gray-700">Size (e.g., L, 32x30)</label>
                          <input type="text" id="size" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
                      </div>
+         
+                     <!-- Quantity (Initial/Current Stock for Add/Edit) -->
                      <div>
                          <label for="quantity" class="block text-sm font-medium text-gray-700">Starting/Current Stock</label>
-                         <input type="number" step="1" id="quantity" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="0">
+                         <input type="number" step="1" id="quantity" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" min="1">
                      </div>
+         
+                     <!-- Color -->
                      <div class="col-span-2 sm:col-span-1">
                          <label for="color" class="block text-sm font-medium text-gray-700">Color/Variant</label>
                          <input type="text" id="color" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
                      </div>
+                     <!-- NEW: Categories Selection -->
                      <div class="col-span-2 sm:col-span-3">
                          <label for="categories" class="block text-sm font-medium text-gray-700 mb-1">Categories (Select one or more)</label>
                          <div class="flex items-start space-x-2">
+                             <!-- Multi-select box (now a select tag) -->
                              <select id="categories" multiple 
                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border custom-select h-24"
                                  required
-                             ></select>
+                             >
+                                 <!-- Options will be populated by JavaScript -->
+                             </select>
+                             <!-- Button to open the Category Management Modal -->
                              <button type="button" id="manage-categories-btn"
                                  class="p-2.5 mt-1 text-sm bg-gray-200 text-gray-700 rounded-md shadow-sm hover:bg-gray-300 transition duration-150 flex items-center"
+                                 title="Add or Remove Categories"
                              >
                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 18H7.5m-3-6h15m-1.5 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0" />
@@ -186,6 +156,8 @@
                              </button>
                          </div>
                      </div>
+         
+                     <!-- Submit Button -->
                      <div class="col-span-2 sm:col-span-3 mt-2">
                          <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
                              Add Item to Inventory
@@ -195,99 +167,146 @@
             </div>
         </div>
         
-        <!-- Search & Print Section -->
-        <div id="search-section" class="mb-6 hidden flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-grow">
+        <!-- Search Input Field -->
+        <div id="search-section" class="mb-6 hidden">
+            <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.197 5.197a7.5 7.5 0 0 0 10.607 10.607Z" />
                     </svg>
                 </div>
-                <input type="text" id="search-input" placeholder="Search inventory..." class="block w-full rounded-lg border-0 py-3 pl-10 pr-4 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-md transition duration-150">
+                <input type="text" id="search-input" placeholder="Search inventory by Name, Size, Color, or Category..." class="block w-full rounded-lg border-0 py-3 pl-10 pr-4 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-md transition duration-150">
             </div>
-            <!-- NEW PRINT BUTTON -->
-            <button onclick="window.print()" class="flex items-center justify-center px-4 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-50 transition duration-150">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231a1.125 1.125 0 0 1-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.658" />
-                </svg>
-                Print Report
-            </button>
         </div>
-
         <!-- Inventory List Section -->
         <div id="inventory-list-section" class="bg-white p-4 sm:p-6 rounded-lg shadow-xl mb-8 hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-700">Current Inventory Stock & Sales</h2>
+                <!-- Button to scroll to financial summary -->
                 <button id="scroll-to-summary-btn" class="bg-gray-200 text-gray-700 text-sm font-medium py-2 px-3 rounded-md hover:bg-gray-300 transition duration-150 flex items-center shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 18H7.5m-3-6h15m-1.5 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0" />
+                    </svg>
                     View Financial Summary
                 </button>
             </div>
-            <div id="inventory-container" class="space-y-4"></div>
-            <p id="no-items-message" class="text-gray-500 text-center py-8 hidden">Your inventory is empty.</p>
+            
+            <div id="inventory-container" class="space-y-4">
+                <!-- Items will be injected here -->
+            </div>
+            <p id="no-items-message" class="text-gray-500 text-center py-8 hidden">
+                Your inventory is currently empty. Add an item above to get started!
+            </p>
         </div>
         
-        <!-- Financial Summaries -->
+        <!-- Financial Summary Section (Global Summary) -->
         <div id="financial-summary-container">
+            <!-- Global Summary will be at the top -->
             <div id="financial-summary" class="bg-indigo-700 p-4 sm:p-6 rounded-lg shadow-xl text-white mt-8 hidden">
-                <h2 class="text-xl font-bold mb-4">Overall Financial Summary</h2>
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2 text-indigo-300">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.03 60.03 0 0 0 18 0m-18 0v-2.25c0-1.31.25-2.58.73-3.72M2.25 18.75c-.32 0-.49-.13-.72-.37-.23-.24-.37-.41-.37-.73v-2.25c0-.62.08-1.22.24-1.8m.72 4.35v-2.25c0-.62.08-1.22.24-1.8m17.52 4.35v-2.25c0-.62.08-1.22.24-1.8m.24 4.05c.48-1.14.73-2.41.73-3.72V15c0-1.31-.25-2.58-.73-3.72m-17.52 7.8c.48-1.14.73-2.41.73-3.72V15c0-1.31-.25-2.58-.73-3.72M21.75 18.75c.32 0 .49-.13.72-.37.23-.24.37-.41.37-.73v-2.25c0-.62-.08-1.22-.24-1.8" />
+                    </svg>
+                    Overall Financial Summary
+                </h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    
                     <div class="bg-white/10 p-4 rounded-md">
-                        <p class="text-sm font-medium text-indigo-200">Stock Investment</p>
+                        <p class="text-sm font-medium text-indigo-200">Total Stock Investment</p>
                         <p id="total-investment" class="text-2xl font-extrabold mt-1">$0.00</p>
+                        <p class="text-xs text-indigo-300">(Cost of stock on hand)</p>
                     </div>
+                    
                     <div class="bg-white/10 p-4 rounded-md">
-                        <p class="text-sm font-medium text-indigo-200">Units Sold</p>
+                        <p class="text-sm font-medium text-indigo-200">Total Sold Units</p>
                         <p id="total-sold-qty" class="text-2xl font-extrabold mt-1">0</p>
+                        <p class="text-xs text-indigo-300">(All units recorded as sold)</p>
                     </div>
                     <div class="bg-white/10 p-4 rounded-md">
-                        <p class="text-sm font-medium text-indigo-200">Revenue</p>
+                        <p class="text-sm font-medium text-indigo-200">Total Realized Revenue</p>
                         <p id="total-revenue" class="text-2xl font-extrabold mt-1">$0.00</p>
+                        <p class="text-xs text-indigo-300">(Money collected from sales)</p>
                     </div>
                     <div class="bg-white/20 p-4 rounded-md border-2 border-green-300">
-                        <p class="text-sm font-medium text-green-300">REALIZED PROFIT</p>
+                        <p class="text-sm font-medium text-green-300">TOTAL REALIZED PROFIT</p>
                         <p id="total-profit" class="text-3xl font-extrabold mt-1">$0.00</p>
+                        <p class="text-xs text-indigo-300">(Revenue - Cost of goods sold)</p>
                     </div>
                 </div>
             </div>
-            <div id="category-summaries" class="mt-8 space-y-4"></div>
+            <!-- Category Summaries will be injected here -->
+            <div id="category-summaries" class="mt-8 space-y-4">
+                <!-- Category financial boxes will be injected here -->
+            </div>
         </div>
-
-        <!-- Modals -->
+        <!-- Custom Modal for Confirmation/Error -->
         <div id="custom-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white text-center">
-                <h3 id="modal-title" class="text-lg leading-6 font-medium text-gray-900"></h3>
-                <div class="mt-2 px-7 py-3"><p id="modal-content" class="text-sm text-gray-500"></p></div>
-                <div id="modal-button-container" class="items-center px-4 py-3">
-                    <button id="modal-close-btn" class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full">OK</button>
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <h3 id="modal-title" class="text-lg leading-6 font-medium text-gray-900"></h3>
+                    <div class="mt-2 px-7 py-3">
+                        <p id="modal-content" class="text-sm text-gray-500"></p>
+                    </div>
+                    <div id="modal-button-container" class="items-center px-4 py-3">
+                        <button id="modal-close-btn" class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none transition duration-150">
+                            OK
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-
+        <!-- NEW: Category Management Modal -->
         <div id="category-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
             <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
                 <h3 class="text-xl font-bold text-gray-900 mb-4">Manage Categories</h3>
+                
+                <!-- Add New Category Form -->
                 <form id="add-category-form" class="flex mb-4">
-                    <input type="text" id="new-category-name" placeholder="Enter new category name" required class="flex-grow rounded-l-md border-gray-300 p-2 border">
-                    <button type="submit" class="p-2.5 bg-indigo-600 text-white rounded-r-md">Add</button>
+                    <input type="text" id="new-category-name" placeholder="Enter new category name" required
+                        class="flex-grow rounded-l-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                    >
+                    <button type="submit" class="p-2.5 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 transition duration-150">
+                        Add
+                    </button>
                 </form>
-                <div id="category-list-container" class="space-y-2 max-h-64 overflow-y-auto p-2 bg-gray-50 rounded-md border border-gray-200"></div>
+                
+                <!-- Category List -->
+                <div id="category-list-container" class="space-y-2 max-h-64 overflow-y-auto p-2 bg-gray-50 rounded-md border border-gray-200">
+                    <!-- Categories will be listed here -->
+                </div>
                 <div class="mt-4 text-right">
-                    <button id="close-category-modal-btn" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md">Done</button>
+                    <button id="close-category-modal-btn" class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none transition duration-150">
+                        Done
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <button id="back-to-top-btn" onclick="scrollToTop()" class="p-3 bg-indigo-600 text-white rounded-full shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" /><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5" /></svg>
+    <!-- NEW: Back to Top Button -->
+    <button id="back-to-top-btn" onclick="scrollToTop()" class="p-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5" />
+        </svg>
     </button>
-
+    <!-- END NEW: Back to Top Button -->
+    <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, updateDoc, increment, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase Config (Fallback)
+        // Import runTransaction for atomic category updates
+        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, updateDoc, increment, getDoc, runTransaction, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- MANDATORY FIREBASE SETUP ---
+        // Setting log level to error to reduce console noise unless there's a problem
+        setLogLevel('error'); 
+        // Global variables for Firebase objects and current data state
+        let app, db, auth, userId = null;
+        let currentItems = []; // Stores the latest inventory snapshot data
+        let currentSales = []; // NEW: Stores the list of all historical sales transactions
+        let currentCategories = []; // Stores the latest categories snapshot data
+        // User-provided Firebase Configuration (used as a fallback for local testing)
         const defaultFirebaseConfig = {
             apiKey: "AIzaSyBiLhE-lIBpw5vKH5R-qJ4GJk3Xw-cLQpE",
             authDomain: "jbdinventory1.firebaseapp.com",
@@ -298,278 +317,955 @@
             measurementId: "G-X3M70499ZG"
         };
         
+        // Configuration retrieval
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : defaultFirebaseConfig; 
+        // Use environment config if available, otherwise use the user's provided default config
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : defaultFirebaseConfig; 
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
+        // Firestore Paths
         const INVENTORY_COLLECTION_PATH = `artifacts/${appId}/public/data/apparel_inventory`;
         const CATEGORIES_DOC_PATH = `artifacts/${appId}/public/data/categories/list`; 
+        // NEW: Separate collection for all sales transactions to lock in financial data
         const SALES_LEDGER_COLLECTION_PATH = `artifacts/${appId}/public/data/sales_ledger`;
-
-        let app, db, auth, userId = null;
-        let currentItems = [], currentSales = [], currentCategories = [];
-        let editingDocId = null;
-
-        // UI Selectors
+        // UI elements
         const loadingEl = document.getElementById('loading');
         const formToggleBtn = document.getElementById('toggle-form-btn'); 
+        const formToggleText = document.getElementById('form-toggle-text'); 
+        const formToggleIcon = document.getElementById('form-toggle-icon'); 
         const formSection = document.getElementById('input-form-section');
+        const listSection = document.getElementById('inventory-list-section');
         const inventoryForm = document.getElementById('inventory-form');
         const inventoryContainer = document.getElementById('inventory-container');
+        const noItemsMessage = document.getElementById('no-items-message');
+        const financialSummary = document.getElementById('financial-summary');
+        const financialSummaryContainer = document.getElementById('financial-summary-container');
+        const categorySummariesEl = document.getElementById('category-summaries');
+        const totalInvestmentEl = document.getElementById('total-investment');
+        const totalRevenueEl = document.getElementById('total-revenue');
+        const totalProfitEl = document.getElementById('total-profit');
+        const searchSection = document.getElementById('search-section'); 
         const searchInput = document.getElementById('search-input');
+        const totalSoldQtyEl = document.getElementById('total-sold-qty');
+        const scrollToSummaryBtn = document.getElementById('scroll-to-summary-btn'); 
+        const formToggleSection = document.getElementById('form-toggle-section'); 
+        
+        // Category UI elements
         const categoriesSelect = document.getElementById('categories');
+        const manageCategoriesBtn = document.getElementById('manage-categories-btn');
+        const categoryModal = document.getElementById('category-modal');
+        const closeCategoryModalBtn = document.getElementById('close-category-modal-btn');
+        const addCategoryForm = document.getElementById('add-category-form');
+        const newCategoryNameInput = document.getElementById('new-category-name');
+        const categoryListContainer = document.getElementById('category-list-container');
+        // Modal elements
+        const modalEl = document.getElementById('custom-modal');
+        const modalTitleEl = document.getElementById('modal-title');
+        const modalContentEl = document.getElementById('modal-content');
+        const modalButtonContainer = document.getElementById('modal-button-container');
+        
+        // Back to Top Button element initialization
         const backToTopBtn = document.getElementById('back-to-top-btn');
-
-        // Utils
-        function showModal(title, content) {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-content').textContent = content;
-            document.getElementById('custom-modal').classList.remove('hidden');
-        }
-        document.getElementById('modal-close-btn').onclick = () => document.getElementById('custom-modal').classList.add('hidden');
-
-        function toggleForm() {
-            const isExpanded = formSection.classList.toggle('is-expanded');
-            document.getElementById('form-toggle-icon').classList.toggle('rotate-180', isExpanded);
-            document.getElementById('form-toggle-text').textContent = isExpanded ? 'Hide Inventory Form' : 'Add New Inventory Item';
-            if (!isExpanded) {
-                inventoryForm.reset();
-                editingDocId = null;
-                const subBtn = inventoryForm.querySelector('button[type="submit"]');
-                subBtn.textContent = 'Add Item to Inventory';
-                subBtn.className = 'w-full py-2 px-4 rounded-md text-white bg-indigo-600';
+        // State for editing
+        let editingDocId = null;
+        // --- UTILITY FUNCTIONS ---
+        
+        // Template for the default single OK button
+        const DEFAULT_OK_BUTTON_HTML = `
+            <button id="modal-close-btn" class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none transition duration-150">
+                OK
+            </button>
+        `;
+        function setupSimpleModalCloseHandler() {
+            // Find the current close button element (it might have been replaced)
+            const closeBtn = document.getElementById('modal-close-btn');
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    modalEl.classList.add('hidden');
+                };
             }
         }
-
-        window.scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
+        
+        // Set up the initial close handler on load
+        setupSimpleModalCloseHandler();
+        // New function to toggle the form visibility
+        function toggleForm() {
+            const isExpanded = formSection.classList.toggle('is-expanded');
+            
+            if (isExpanded) {
+                formToggleIcon.classList.add('rotate-180');
+                formToggleText.textContent = 'Hide Inventory Form';
+            } else {
+                formToggleIcon.classList.remove('rotate-180');
+                formToggleText.textContent = 'Add New Inventory Item';
+                // Reset form state if collapsing
+                inventoryForm.reset();
+                editingDocId = null;
+                // Reset category selection
+                Array.from(categoriesSelect.options).forEach(option => option.selected = false);
+                
+                const submitButton = inventoryForm.querySelector('button[type="submit"]');
+                submitButton.textContent = 'Add Item to Inventory';
+                submitButton.classList.remove('bg-orange-500', 'hover:-bg-orange-600');
+                submitButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            }
+        }
+        
+        // New function to scroll to the financial summary
+        function scrollToSummary() {
+             financialSummaryContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Function to handle scrolling to top
+        window.scrollToTop = function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function showModal(title, content) {
+            // 1. Ensure the button container is reset to the default OK button HTML
+            modalButtonContainer.innerHTML = DEFAULT_OK_BUTTON_HTML;
+            
+            // 2. Attach the simple close handler to the newly created button
+            setupSimpleModalCloseHandler();
+            // 3. Set content and display
+            modalTitleEl.textContent = title;
+            modalContentEl.textContent = content;
+            modalEl.classList.remove('hidden');
+        }
+        // Function to handle exponential backoff and retry (simplified version for context)
+        async function fetchWithRetry(url, options, maxRetries = 3) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    console.error(`Fetch attempt ${i + 1} failed:`, error);
+                    if (i === maxRetries - 1) throw error; 
+                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        
+        // Scroll event listener logic to show/hide the button
+        function handleScroll() {
+            if (backToTopBtn) {
+                if (window.scrollY > 300) { // Show button after scrolling 300px down
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            }
+        }
+        // --- FIREBASE INITIALIZATION & AUTHENTICATION ---
         async function initializeFirebase() {
+            // Check if firebaseConfig is valid (either from runtime or fallback)
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                console.error("Firebase config is missing or invalid.");
+                showModal("Configuration Error", "Firebase configuration is missing or invalid. Cannot initialize the app.");
+                return;
+            }
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-                if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
-                else await signInAnonymously(auth);
-
+                // Authenticate the user
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                // Wait for the auth state to settle
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
-                        loadingEl.classList.add('hidden');
-                        document.getElementById('form-toggle-section').classList.remove('hidden');
-                        document.getElementById('inventory-list-section').classList.remove('hidden');
-                        document.getElementById('financial-summary').classList.remove('hidden');
-                        document.getElementById('search-section').classList.remove('hidden');
+                        console.log(`Successfully authenticated user ID: ${userId}`); // Log the ID for debugging
                         
-                        loadCategories();
-                        loadProducts();
-                        loadSalesLedger();
-
-                        formToggleBtn.onclick = toggleForm;
-                        searchInput.oninput = () => renderInventory(currentItems);
-                        document.getElementById('scroll-to-summary-btn').onclick = () => document.getElementById('financial-summary-container').scrollIntoView({ behavior: 'smooth' });
-                        document.getElementById('manage-categories-btn').onclick = () => document.getElementById('category-modal').classList.remove('hidden');
-                        document.getElementById('close-category-modal-btn').onclick = () => document.getElementById('category-modal').classList.add('hidden');
-                        document.getElementById('add-category-form').onsubmit = handleAddCategory;
-                        document.getElementById('category-summaries').onclick = handleTransactionListClick;
-                        window.onscroll = () => backToTopBtn.classList.toggle('show', window.scrollY > 300);
+                        // Show the app UI and start listening to data
+                        loadingEl.classList.add('hidden');
+                        formToggleSection.classList.remove('hidden'); // Show toggle button
+                        listSection.classList.remove('hidden');
+                        financialSummary.classList.remove('hidden'); 
+                        searchSection.classList.remove('hidden');
+                        loadCategories(); // Load categories
+                        loadProducts(); // Load inventory items
+                        loadSalesLedger(); // NEW: Load historical sales
+                        
+                        // Attach listeners
+                        searchInput.addEventListener('input', () => {
+                            renderInventory(currentItems);
+                        });
+                        
+                        formToggleBtn.addEventListener('click', toggleForm);
+                        scrollToSummaryBtn.addEventListener('click', scrollToSummary);
+                        // Attach category management listeners
+                        manageCategoriesBtn.addEventListener('click', () => categoryModal.classList.remove('hidden'));
+                        closeCategoryModalBtn.addEventListener('click', () => categoryModal.classList.add('hidden'));
+                        addCategoryForm.addEventListener('submit', handleAddCategory);
+                        categoryListContainer.addEventListener('click', handleRemoveCategoryClick);
+                        
+                        // Attach transaction list event listener (delegated)
+                        categorySummariesEl.addEventListener('click', handleTransactionListClick);
+                    } else {
+                        loadingEl.classList.add('hidden');
+                        showModal("Authentication Failed", "Could not establish an authenticated session. Data saving may fail.");
                     }
                 });
-            } catch (e) { showModal("Error", e.message); }
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                showModal("Initialization Failed", `An error occurred during startup: ${error.message}`);
+            }
         }
-
+        
+        // --- CATEGORY CRUD OPERATIONS & UI (UNCHANGED) ---
+        
+        // Load categories in real-time
         function loadCategories() {
-            onSnapshot(doc(db, CATEGORIES_DOC_PATH), (snap) => {
-                currentCategories = (snap.exists() && Array.isArray(snap.data().names)) ? snap.data().names : [];
+            if (!db) return;
+            const docRef = doc(db, CATEGORIES_DOC_PATH);
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentCategories = Array.isArray(docSnap.data().names) ? docSnap.data().names : [];
+                } else {
+                    currentCategories = [];
+                }
+                
                 renderCategorySelect(currentCategories);
                 renderCategoryManagementList(currentCategories);
+                // Trigger re-render of inventory to update financial summaries based on new categories
                 renderFinancialSummaries(currentItems, currentSales, currentCategories);
+            }, (error) => {
+                console.error("Error fetching categories:", error);
             });
         }
-
-        async function handleAddCategory(e) {
-            e.preventDefault();
-            const val = document.getElementById('new-category-name').value.trim();
-            if (!val || currentCategories.includes(val)) return;
-            const updated = [...currentCategories, val].sort();
-            await setDoc(doc(db, CATEGORIES_DOC_PATH), { names: updated });
-            document.getElementById('new-category-name').value = '';
-        }
-
-        function renderCategorySelect(cats) {
-            categoriesSelect.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-        }
-
-        function renderCategoryManagementList(cats) {
-            const container = document.getElementById('category-list-container');
-            container.innerHTML = cats.map(c => `
-                <div class="flex justify-between p-2 bg-white rounded border">
-                    <span>${c}</span>
-                    <button class="text-red-500" onclick="removeCategory('${c}')">Delete</button>
-                </div>
-            `).join('');
-        }
-        window.removeCategory = async (name) => {
-            const updated = currentCategories.filter(n => n !== name);
-            await setDoc(doc(db, CATEGORIES_DOC_PATH), { names: updated });
-        };
-
-        function loadProducts() {
-            onSnapshot(query(collection(db, INVENTORY_COLLECTION_PATH)), (snap) => {
-                currentItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderInventory(currentItems);
-            });
-        }
-
-        function loadSalesLedger() {
-            onSnapshot(query(collection(db, SALES_LEDGER_COLLECTION_PATH)), (snap) => {
-                currentSales = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderInventory(currentItems);
-            });
-        }
-
-        async function handleSaleOrRestock(docId, type) {
-            const docRef = doc(db, INVENTORY_COLLECTION_PATH, docId);
+        
+        // Helper to update the categories document
+        async function updateCategoriesInDb(newCategories) {
+            if (!db) return;
+            const docRef = doc(db, CATEGORIES_DOC_PATH);
             try {
-                await runTransaction(db, async (t) => {
-                    const snap = await t.get(docRef);
-                    const data = snap.data();
-                    if (type === 'sell' && data.quantity <= 0) throw new Error("Out of stock");
-                    t.update(docRef, { quantity: increment(type === 'sell' ? -1 : 1) });
-                    const saleRef = doc(collection(db, SALES_LEDGER_COLLECTION_PATH));
-                    t.set(saleRef, {
-                        inventoryItemId: docId,
-                        productName: data.productName,
-                        categories: data.categories || [],
-                        costAtSale: data.retailCost,
-                        priceAtSale: data.sellingPrice,
-                        quantitySold: 1,
-                        saleDate: Date.now(),
-                        type: type === 'sell' ? 'sale' : 'restock'
+                await runTransaction(db, async (transaction) => {
+                    const docSnap = await transaction.get(docRef);
+                    transaction.set(docRef, { names: newCategories }, { merge: false });
+                });
+            } catch (error) {
+                console.error("Error updating categories document in transaction:", error);
+                showModal("Database Error", `Failed to update categories: ${error.message}`);
+            }
+        }
+        // Add a new category
+        async function handleAddCategory(event) {
+            event.preventDefault();
+            const newName = newCategoryNameInput.value.trim();
+            if (!newName) return;
+            
+            const normalizedName = newName.toLowerCase();
+            if (currentCategories.map(c => c.toLowerCase()).includes(normalizedName)) {
+                showModal("Duplicate Category", `The category "${newName}" already exists.`);
+                return;
+            }
+            const updatedCategories = [...currentCategories, newName].sort((a, b) => a.localeCompare(b));
+            await updateCategoriesInDb(updatedCategories);
+            
+            newCategoryNameInput.value = ''; // Clear input
+        }
+        // Remove a category
+        async function handleRemoveCategory(categoryName) {
+            const updatedCategories = currentCategories.filter(name => name !== categoryName);
+            await updateCategoriesInDb(updatedCategories);
+        }
+        
+        // Handle click on the remove button in the modal list
+        function handleRemoveCategoryClick(event) {
+            const button = event.target.closest('button[data-category-name]');
+            if (button) {
+                const categoryName = button.dataset.categoryName;
+                handleRemoveCategory(categoryName);
+            }
+        }
+        // Render options in the <select> box
+        function renderCategorySelect(categories) {
+            categoriesSelect.innerHTML = '';
+            if (categories.length === 0) {
+                 const option = document.createElement('option');
+                 option.value = '';
+                 option.textContent = 'No categories found. Click Manage.';
+                 option.disabled = true;
+                 categoriesSelect.appendChild(option);
+                 categoriesSelect.required = false;
+                 return;
+            }
+            categoriesSelect.required = true;
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoriesSelect.appendChild(option);
+            });
+        }
+        // Render the list inside the management modal
+        function renderCategoryManagementList(categories) {
+            categoryListContainer.innerHTML = '';
+            if (categories.length === 0) {
+                categoryListContainer.innerHTML = '<p class="text-gray-500 text-sm text-center py-2">No categories yet. Add one above!</p>';
+                return;
+            }
+            categories.forEach(category => {
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center p-2 bg-white rounded-md shadow-sm border border-gray-100';
+                item.innerHTML = `
+                    <span class="text-gray-700">${category}</span>
+                    <button data-category-name="${category}" 
+                            class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition duration-150"
+                            title="Remove Category"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 pointer-events-none">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                `;
+                categoryListContainer.appendChild(item);
+            });
+        }
+        
+        // --- INVENTORY & SALES LEDGER CRUD OPERATIONS ---
+        // 1. Save (Add/Update) Product
+        async function saveProduct(productData, docId = null) {
+            if (!db) {
+                console.error("Database not initialized.");
+                return;
+            }
+            try {
+                if (docId) {
+                    const docRef = doc(db, INVENTORY_COLLECTION_PATH, docId);
+                    await updateDoc(docRef, productData);
+                } else {
+                    // For new items, ensure quantity is set correctly and salesQuantity is removed.
+                    // salesQuantity is no longer stored on the item document.
+                    delete productData.salesQuantity; 
+                    await addDoc(collection(db, INVENTORY_COLLECTION_PATH), productData);
+                }
+                showModal("Success!", `Inventory item ${docId ? 'updated' : 'added'} successfully.`);
+            } catch (error) {
+                console.error("Error saving product:", error);
+                showModal("Database Error", `Failed to save item: ${error.message}`);
+            }
+        }
+        
+        // 2. Load Sales Ledger (Real-time)
+        function loadSalesLedger() {
+            if (!db) return;
+            const q = query(collection(db, SALES_LEDGER_COLLECTION_PATH));
+            onSnapshot(q, (snapshot) => {
+                const sales = [];
+                snapshot.forEach((doc) => {
+                    sales.push({ 
+                        id: doc.id, 
+                        ...doc.data() 
                     });
                 });
-            } catch (e) { showModal("Error", e.message); }
+                
+                currentSales = sales; // Update the global state
+                // Re-render inventory to update financial summaries
+                renderInventory(currentItems); 
+            }, (error) => {
+                console.error("Error fetching sales ledger:", error);
+                showModal("Data Error", `Could not load sales ledger: ${error.message}`);
+            });
         }
-
-        function renderInventory(items) {
-            const term = searchInput.value.toLowerCase();
-            const filtered = items.filter(i => 
-                i.productName.toLowerCase().includes(term) || 
-                i.size.toLowerCase().includes(term) || 
-                (i.categories || []).some(c => c.toLowerCase().includes(term))
-            ).sort((a,b) => a.productName.localeCompare(b.productName));
-
-            renderFinancialSummaries(items, currentSales, currentCategories);
-            document.getElementById('no-items-message').classList.toggle('hidden', filtered.length > 0);
-            
-            inventoryContainer.innerHTML = filtered.map(item => {
-                const sales = currentSales.filter(s => s.inventoryItemId === item.id && s.type !== 'restock');
-                const profit = sales.reduce((acc, s) => acc + (s.priceAtSale - s.costAtSale), 0);
-                const margin = item.sellingPrice > 0 ? ((item.sellingPrice - item.retailCost) / item.sellingPrice * 100).toFixed(1) : 0;
-
-                return `
-                    <div class="bg-white p-4 border rounded-lg shadow-md sm:flex items-center gap-4">
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-lg">${item.productName}</h3>
-                            <p class="text-sm text-gray-500">${item.size} • ${item.color}</p>
-                            <div class="flex flex-wrap gap-1 mt-2">${(item.categories||[]).map(c => `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">${c}</span>`).join('')}</div>
-                            <div class="grid grid-cols-2 text-sm mt-2">
-                                <span>Stock: <b>${item.quantity}</b></span>
-                                <span>Sold: <b>${sales.length}</b></span>
-                            </div>
-                        </div>
-                        <div class="sm:w-48 space-y-2 mt-4 sm:mt-0 text-right">
-                            <div class="bg-green-50 p-2 rounded">
-                                <p class="text-xs text-gray-500">Realized Profit</p>
-                                <p class="font-bold text-green-700">$${profit.toFixed(2)}</p>
-                            </div>
-                            <div class="flex gap-1 no-print">
-                                <button onclick="window.recordAction('${item.id}', 'sell')" class="flex-1 bg-green-500 text-white text-xs py-1.5 rounded" ${item.quantity <=0 ? 'disabled':''}>Sale</button>
-                                <button onclick="window.recordAction('${item.id}', 'restock')" class="flex-1 bg-blue-500 text-white text-xs py-1.5 rounded">Stock</button>
-                            </div>
-                            <div class="flex gap-1 no-print">
-                                <button onclick="window.editItem('${item.id}')" class="flex-1 bg-gray-100 text-xs py-1 rounded">Edit</button>
-                                <button onclick="window.deleteItem('${item.id}')" class="flex-1 bg-red-50 text-red-600 text-xs py-1 rounded">Del</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        // 3. Handle Sale or Restock (Updated for Ledger)
+        async function handleSaleOrRestock(docId, changeType) {
+            if (!db) return;
+            const docRef = doc(db, INVENTORY_COLLECTION_PATH, docId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const itemSnap = await transaction.get(docRef);
+                    if (!itemSnap.exists()) {
+                        throw new Error("Item does not exist.");
+                    }
+                    const item = itemSnap.data();
+                    const currentStock = parseInt(item.quantity, 10);
+                    const ledgerRef = collection(db, SALES_LEDGER_COLLECTION_PATH);
+                    const newTransactionRef = doc(ledgerRef);
+                    
+                    if (changeType === 'sell') {
+                        if (currentStock <= 0) {
+                            throw new Error("Cannot record a sale: Stock quantity is zero.");
+                        }
+                        // 1. Decrement quantity in inventory
+                        transaction.update(docRef, {
+                            quantity: increment(-1)
+                        });
+                        // 2. Record immutable sale transaction in the ledger
+                        const saleData = {
+                            inventoryItemId: docId,
+                            productName: item.productName, 
+                            categories: item.categories || [],
+                            costAtSale: item.retailCost, 
+                            priceAtSale: item.sellingPrice,
+                            quantitySold: 1,
+                            saleDate: Date.now(),
+                            type: 'sale' // Added type to distinguish from restock
+                        };
+                        transaction.set(newTransactionRef, saleData);
+                    } else if (changeType === 'restock') {
+                        // 1. Increment quantity in inventory
+                        transaction.update(docRef, {
+                            quantity: increment(1)
+                        });
+                        // 2. Record immutable restock transaction in the ledger
+                         const restockData = {
+                            inventoryItemId: docId,
+                            productName: item.productName,
+                            categories: item.categories || [],
+                            quantitySold: 1, // Using consistent field name for quantity affected
+                            saleDate: Date.now(),
+                            type: 'restock'
+                        };
+                        transaction.set(newTransactionRef, restockData);
+                    }
+                });
+            } catch (error) {
+                console.error(`Error handling stock change (${changeType}):`, error);
+                showModal("Update Error", `Failed to update inventory: ${error.message}`);
+            }
         }
-
-        window.recordAction = (id, type) => handleSaleOrRestock(id, type);
-        window.deleteItem = async (id) => { if(confirm("Delete item?")) await deleteDoc(doc(db, INVENTORY_COLLECTION_PATH, id)); };
-        window.editItem = (id) => {
-            const item = currentItems.find(i => i.id === id);
-            editingDocId = id;
+        
+        // 4. Delete Transaction (Undo Sale/Restock)
+        async function deleteTransaction(transactionId) {
+             if (!db) return;
+             
+             // Confirm deletion
+             const confirm = await new Promise(resolve => {
+                 modalTitleEl.textContent = "Undo Transaction";
+                 modalContentEl.textContent = "Are you sure you want to delete this transaction? This will reverse the stock change.";
+                 
+                 const yesButton = document.createElement('button');
+                 yesButton.textContent = 'Yes, Delete';
+                 yesButton.className = 'px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-1/2 shadow-sm hover:bg-red-700 transition duration-150 mr-2';
+                 const noButton = document.createElement('button');
+                 noButton.textContent = 'Cancel';
+                 noButton.className = 'px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md w-1/2 shadow-sm hover:bg-gray-400 transition duration-150';
+                 modalButtonContainer.innerHTML = '';
+                 modalButtonContainer.appendChild(yesButton);
+                 modalButtonContainer.appendChild(noButton);
+                 modalEl.classList.remove('hidden');
+                 const restoreModal = () => {
+                     modalTitleEl.textContent = ""; 
+                     modalContentEl.textContent = "";
+                     modalButtonContainer.innerHTML = DEFAULT_OK_BUTTON_HTML;
+                     setupSimpleModalCloseHandler(); 
+                     modalEl.classList.add('hidden');
+                 };
+                 yesButton.onclick = () => { resolve(true); restoreModal(); };
+                 noButton.onclick = () => { resolve(false); restoreModal(); };
+             });
+             if (!confirm) return;
+             const transactionRef = doc(db, SALES_LEDGER_COLLECTION_PATH, transactionId);
+             try {
+                 await runTransaction(db, async (transaction) => {
+                     const transactionSnap = await transaction.get(transactionRef);
+                     if (!transactionSnap.exists()) {
+                         throw new Error("Transaction record not found.");
+                     }
+                     const transactionData = transactionSnap.data();
+                     const inventoryItemId = transactionData.inventoryItemId;
+                     const inventoryRef = doc(db, INVENTORY_COLLECTION_PATH, inventoryItemId);
+                     
+                     // Check if inventory item still exists to reverse stock
+                     const inventorySnap = await transaction.get(inventoryRef);
+                     
+                     if (inventorySnap.exists()) {
+                         if (transactionData.type === 'sale' || !transactionData.type) {
+                             // Reverse a sale: Add 1 back to stock
+                             transaction.update(inventoryRef, { quantity: increment(1) });
+                         } else if (transactionData.type === 'restock') {
+                             // Reverse a restock: Remove 1 from stock
+                             transaction.update(inventoryRef, { quantity: increment(-1) });
+                         }
+                     }
+                     
+                     // Delete the transaction record
+                     transaction.delete(transactionRef);
+                 });
+                 showModal("Success", "Transaction undone successfully.");
+             } catch (error) {
+                 console.error("Error deleting transaction:", error);
+                 showModal("Error", `Failed to undo transaction: ${error.message}`);
+             }
+        }
+        // 5. Delete Product
+        async function deleteProduct(docId) {
+            if (!db) return;
+            // Custom modal for confirmation
+            const confirmDelete = () => new Promise(resolve => {
+                
+                // Display confirmation message
+                modalTitleEl.textContent = "Confirm Deletion";
+                modalContentEl.textContent = "Are you sure you want to delete this inventory item? This cannot be undone.";
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-1/2 shadow-sm hover:bg-red-700 transition duration-150 mr-2';
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.className = 'px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md w-1/2 shadow-sm hover:bg-gray-400 transition duration-150';
+                // Clear existing content and append new buttons
+                modalButtonContainer.innerHTML = '';
+                modalButtonContainer.appendChild(deleteButton);
+                modalButtonContainer.appendChild(cancelButton);
+                modalEl.classList.remove('hidden');
+                // Function to restore the modal to its original simple message state
+                const restoreModal = () => {
+                    modalTitleEl.textContent = ""; 
+                    modalContentEl.textContent = "";
+                    // Restore the default HTML which also creates the modal-close-btn element
+                    modalButtonContainer.innerHTML = DEFAULT_OK_BUTTON_HTML;
+                    // Re-attach the simple close handler to the newly restored element
+                    setupSimpleModalCloseHandler(); 
+                    
+                    modalEl.classList.add('hidden');
+                };
+                deleteButton.onclick = () => { 
+                    resolve(true); 
+                    restoreModal(); // Restore UI after resolution
+                };
+                cancelButton.onclick = () => { 
+                    resolve(false); 
+                    restoreModal(); // Restore UI after resolution
+                };
+            });
+            if (await confirmDelete()) {
+                try {
+                    // Note: We are NOT deleting sales ledger entries, so historical financials remain accurate.
+                    await deleteDoc(doc(db, INVENTORY_COLLECTION_PATH, docId));
+                    showModal("Deleted", "Item successfully removed from inventory.");
+                } catch (error) {
+                    console.error("Error deleting product:", error);
+                    showModal("Database Error", `Failed to delete item: ${error.message}`);
+                }
+            }
+        }
+        // 6. Load Products (Real-time with onSnapshot)
+        function loadProducts() {
+            if (!db) return;
+            const q = query(collection(db, INVENTORY_COLLECTION_PATH));
+            onSnapshot(q, (snapshot) => {
+                const items = [];
+                snapshot.forEach((doc) => {
+                    items.push({ 
+                        id: doc.id, 
+                        categories: doc.data().categories || [], 
+                        ...doc.data() 
+                    });
+                });
+                
+                currentItems = items; // Update the global state
+                renderInventory(currentItems); // Render the list and trigger summaries
+            }, (error) => {
+                console.error("Error fetching documents:", error);
+                showModal("Data Error", `Could not load inventory: ${error.message}`);
+            });
+        }
+        
+        // --- UI RENDERING & EVENT HANDLERS ---
+        
+        function editProduct(item) {
+            editingDocId = item.id;
             document.getElementById('product-name').value = item.productName;
             document.getElementById('retail-cost').value = item.retailCost;
             document.getElementById('selling-price').value = item.sellingPrice;
             document.getElementById('size').value = item.size;
-            document.getElementById('quantity').value = item.quantity;
+            // The quantity input updates the CURRENT stock, which is fine.
+            document.getElementById('quantity').value = item.quantity; 
             document.getElementById('color').value = item.color;
-            Array.from(categoriesSelect.options).forEach(o => o.selected = (item.categories||[]).includes(o.value));
-            if(!formSection.classList.contains('is-expanded')) toggleForm();
-            inventoryForm.querySelector('button[type="submit"]').textContent = "Update Item";
-            window.scrollTo({top:0, behavior:'smooth'});
-        };
-
-        function renderFinancialSummaries(items, sales, cats) {
-            let inv = items.reduce((a, i) => a + (i.quantity * i.retailCost), 0);
-            let sold = sales.filter(s => s.type !== 'restock');
-            let rev = sold.reduce((a, s) => a + (s.priceAtSale * s.quantitySold), 0);
-            let cost = sold.reduce((a, s) => a + (s.costAtSale * s.quantitySold), 0);
-
-            document.getElementById('total-investment').textContent = `$${inv.toFixed(2)}`;
-            document.getElementById('total-sold-qty').textContent = sold.length;
-            document.getElementById('total-revenue').textContent = `$${rev.toFixed(2)}`;
-            document.getElementById('total-profit').textContent = `$${(rev - cost).toFixed(2)}`;
-
-            const catContainer = document.getElementById('category-summaries');
-            catContainer.innerHTML = cats.map(cat => {
-                const cSales = sold.filter(s => (s.categories||[]).includes(cat));
-                const cRev = cSales.reduce((a, s) => a + s.priceAtSale, 0);
-                const cCost = cSales.reduce((a, s) => a + s.costAtSale, 0);
-                const cHist = sales.filter(s => (s.categories||[]).includes(cat)).sort((a,b) => b.saleDate - a.saleDate);
-
-                return `
-                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-indigo-600">
-                        <h3 class="font-bold text-gray-800 mb-2">${cat}</h3>
-                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                            <div class="bg-gray-50 p-2 rounded">Units: ${cSales.length}</div>
-                            <div class="bg-gray-50 p-2 rounded">Rev: $${cRev.toFixed(2)}</div>
-                            <div class="bg-indigo-50 p-2 rounded font-bold">Profit: $${(cRev-cCost).toFixed(2)}</div>
+            // Set categories selection
+            const itemCategories = item.categories || [];
+            Array.from(categoriesSelect.options).forEach(option => {
+                option.selected = itemCategories.includes(option.value);
+            });
+            
+            const submitButton = inventoryForm.querySelector('button[type="submit"]');
+            submitButton.textContent = `Update "${item.productName}"`;
+            submitButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            submitButton.classList.add('bg-orange-500', 'hover:bg-orange-600');
+            
+            // Open the form/dropdown when editing
+            if (!formSection.classList.contains('is-expanded')) {
+                toggleForm();
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        // Render the list of inventory items AND calculate totals
+        function renderInventory(items) {
+            inventoryContainer.innerHTML = '';
+            // Filtering Logic
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const filteredItems = items.filter(item => {
+                // Search across Name, Size, Color, and Categories fields
+                const categoriesString = (item.categories || []).join(' ').toLowerCase();
+                const searchString = `${item.productName} ${item.size} ${item.color} ${categoriesString}`.toLowerCase();
+                return searchString.includes(searchTerm);
+            });
+            // Calculate and render all financial summaries based on ledger data
+            renderFinancialSummaries(items, currentSales, currentCategories);
+            if (filteredItems.length === 0) {
+                noItemsMessage.classList.remove('hidden');
+            } else {
+                noItemsMessage.classList.add('hidden');
+            }
+            
+            // Sort by product name
+            filteredItems.sort((a, b) => a.productName.localeCompare(b.productName));
+            filteredItems.forEach(item => {
+                // Calculations based on CURRENT item data (for display)
+                const retailCost = parseFloat(item.retailCost);
+                const sellingPrice = parseFloat(item.sellingPrice);
+                const currentStock = parseInt(item.quantity, 10);
+                
+                // Find realized sales quantity and profit from the ledger for THIS ITEM
+                // Filter only sales for qty/profit calc
+                const itemSales = currentSales.filter(sale => sale.inventoryItemId === item.id && (sale.type === 'sale' || !sale.type));
+                const salesQuantity = itemSales.length; 
+                
+                // --- NEW PROFIT MARGIN CALCULATION ---
+                const grossProfitPerUnit = sellingPrice - retailCost;
+                let profitMarginPercentage = 0;
+                if (sellingPrice > 0) {
+                    profitMarginPercentage = (grossProfitPerUnit / sellingPrice) * 100;
+                }
+                const marginColor = profitMarginPercentage >= 30 ? 'text-green-700' : (profitMarginPercentage > 0 ? 'text-yellow-700' : 'text-red-700');
+                // ------------------------------------
+                // Sum up realized profit and revenue from the ledger for this specific item
+                const totalProfitFromSales = itemSales.reduce((sum, sale) => sum + (sale.priceAtSale - sale.costAtSale), 0);
+                
+                const totalProfitColor = totalProfitFromSales > 0 ? 'text-green-700' : (totalProfitFromSales < 0 ? 'text-red-700' : 'text-gray-700');
+                
+                // Display categories as small tags
+                const categoryTags = (item.categories || [])
+                    .map(cat => `<span class="custom-select-tag">${cat}</span>`)
+                    .join('');
+                
+                const itemHtml = `
+                    <div class="bg-white p-4 border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition duration-200 sm:flex sm:justify-between sm:items-center">
+                        <!-- Item Details (Left Side) -->
+                        <div class="flex-grow mb-3 sm:mb-0">
+                            <div class="text-lg font-bold text-gray-800">${item.productName}</div>
+                            <div class="text-sm text-gray-500">Size: ${item.size} • Color: ${item.color}</div>
+                            <div class="mt-2 text-xs font-medium text-gray-600">Categories:</div>
+                            <div class="flex flex-wrap mt-1 text-sm">${categoryTags}</div>
+                            
+                            <div class="mt-3 grid grid-cols-2 text-sm gap-y-1">
+                                <!-- Stock and Sold (from Ledger total) -->
+                                <div><span class="font-medium text-gray-600">Stock Qty:</span> <span class="text-indigo-600 font-semibold">${currentStock}</span></div>
+                                <div><span class="font-medium text-gray-600">Sold Qty:</span> <span class="text-indigo-600 font-semibold">${salesQuantity}</span></div>
+                                
+                                <!-- Current Cost/Price (for what is in stock) -->
+                                <div><span class="font-medium text-gray-600">Current Cost:</span> $${retailCost.toFixed(2)}</div>
+                                <div><span class="font-medium text-gray-600">Current Price:</span> $${sellingPrice.toFixed(2)}</div>
+                            </div>
                         </div>
-                        <div class="mt-2 no-print">
-                            <button onclick="toggleHist('${cat}')" class="text-indigo-600 text-xs font-medium w-full py-1">View History</button>
-                            <div id="hist-${cat}" class="hidden mt-2 bg-gray-50 p-2 rounded text-[10px] space-y-1">
-                                ${cHist.map(h => `<div>${new Date(h.saleDate).toLocaleDateString()} - ${h.productName} (${h.type})</div>`).join('')}
+                        <!-- Financials & Actions (Right Side) -->
+                        <div class="sm:ml-4 sm:w-64 flex flex-col space-y-2 mt-4 sm:mt-0">
+                            
+                            <!-- Total Profit from Sales (from Ledger) -->
+                            <div class="bg-green-50 p-2 rounded-md">
+                                <p class="text-xs font-medium text-gray-600">Total Profit (Realized)</p>
+                                <p class="${totalProfitColor} font-bold text-lg">$${totalProfitFromSales.toFixed(2)}</p>
+                            </div>
+                            
+                            <!-- Profit Per Unit and Profit Margin % (based on CURRENT details) -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-indigo-50 p-2 rounded-md">
+                                    <p class="text-xs font-medium text-gray-600">Profit/Unit</p>
+                                    <p class="${grossProfitPerUnit > 0 ? 'text-green-700' : 'text-red-700'} font-bold text-sm">$${grossProfitPerUnit.toFixed(2)}</p>
+                                </div>
+                                <div class="bg-indigo-100 p-2 rounded-md border-2 border-indigo-200">
+                                    <p class="text-xs font-medium text-gray-600">Margin %</p>
+                                    <p class="${marginColor} font-bold text-sm">${profitMarginPercentage.toFixed(1)}%</p>
+                                </div>
+                            </div>
+                            <!-- Sales/Stock Buttons -->
+                            <div class="flex space-x-2">
+                                <button data-id="${item.id}" data-action="sell" ${currentStock <= 0 ? 'disabled' : ''} class="flex-1 py-1 text-sm rounded-md bg-green-500 hover:bg-green-600 text-white transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Record Sale (-1)
+                                </button>
+                                <button data-id="${item.id}" data-action="restock" class="flex-1 py-1 text-sm rounded-md bg-blue-500 hover:bg-blue-600 text-white transition duration-150">
+                                    Restock (+1)
+                                </button>
+                            </div>
+                            <!-- Edit/Delete Buttons -->
+                            <div class="flex space-x-2">
+                                <button data-id="${item.id}" data-action="edit" class="flex-1 py-1 text-sm rounded-md bg-yellow-400 hover:bg-yellow-500 text-gray-800 transition duration-150">Edit Details</button>
+                                <button data-id="${item.id}" data-action="delete" class="flex-1 py-1 text-sm rounded-md bg-red-500 hover:bg-red-600 text-white transition duration-150">Delete</button>
                             </div>
                         </div>
                     </div>
                 `;
-            }).join('');
+                inventoryContainer.innerHTML += itemHtml;
+            });
         }
-
-        window.toggleHist = (cat) => document.getElementById(`hist-${cat}`).classList.toggle('hidden');
-        function handleTransactionListClick(e) {} // Handled inline above
-
-        inventoryForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const data = {
-                productName: document.getElementById('product-name').value,
-                retailCost: parseFloat(document.getElementById('retail-cost').value),
-                sellingPrice: parseFloat(document.getElementById('selling-price').value),
-                size: document.getElementById('size').value,
-                quantity: parseInt(document.getElementById('quantity').value),
-                color: document.getElementById('color').value,
-                categories: Array.from(categoriesSelect.selectedOptions).map(o => o.value),
-                timestamp: Date.now()
+        
+        function handleTransactionListClick(event) {
+            // Handle Toggle Button Click
+            const toggleBtn = event.target.closest('button[data-toggle-category]');
+            if (toggleBtn) {
+                const category = toggleBtn.dataset.toggleCategory;
+                const list = document.getElementById(`transaction-list-${category}`);
+                if (list) {
+                     list.classList.toggle('hidden');
+                     const textSpan = toggleBtn.querySelector('span');
+                     if (list.classList.contains('hidden')) {
+                         textSpan.textContent = 'View History';
+                     } else {
+                         textSpan.textContent = 'Hide History';
+                     }
+                }
+                return;
+            }
+            // Handle Delete Transaction Click
+            const deleteBtn = event.target.closest('button[data-delete-transaction-id]');
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.deleteTransactionId;
+                deleteTransaction(id);
+            }
+        }
+        
+        function renderFinancialSummaries(items, sales, categories) {
+            // --- 1. GLOBAL FINANCIAL SUMMARY CALCULATION (Based on Sales Ledger) ---
+            let globalTotalInvestment = 0;
+            let globalTotalRealizedRevenue = 0;
+            let globalTotalRealizedCostOfSoldGoods = 0;
+            let globalTotalSoldQuantity = 0; 
+            
+            // --- 2. CATEGORY-SPECIFIC FINANCIAL SUMMARY SETUP ---
+            const categoryTotals = new Map();
+            categories.forEach(cat => {
+                categoryTotals.set(cat, { soldQty: 0, revenue: 0, cost: 0, transactions: [] });
+            });
+            // Calculate Stock Investment (Still based on CURRENT inventory cost)
+            items.forEach(item => {
+                const retailCost = parseFloat(item.retailCost);
+                const currentStock = parseInt(item.quantity, 10);
+                globalTotalInvestment += (currentStock * retailCost);
+            });
+            
+            // Calculate Realized Financials (Based on Ledger)
+            sales.forEach(sale => {
+                const type = sale.type || 'sale'; // Default to sale
+                
+                if (type === 'sale') {
+                    const cost = sale.costAtSale || 0;
+                    const price = sale.priceAtSale || 0;
+                    const qty = sale.quantitySold || 1; 
+                    globalTotalSoldQuantity += qty;
+                    globalTotalRealizedRevenue += (price * qty);
+                    globalTotalRealizedCostOfSoldGoods += (cost * qty);
+                    
+                    // Accumulate Category Totals (using categories locked in at time of sale)
+                    (sale.categories || []).forEach(cat => {
+                        if (categoryTotals.has(cat)) {
+                            const totals = categoryTotals.get(cat);
+                            totals.soldQty += qty;
+                            totals.revenue += (price * qty);
+                            totals.cost += (cost * qty);
+                            totals.transactions.push({ ...sale, type: 'sale' });
+                        }
+                    });
+                } else if (type === 'restock') {
+                    // Accumulate restocks for list display
+                     (sale.categories || []).forEach(cat => {
+                        if (categoryTotals.has(cat)) {
+                            categoryTotals.get(cat).transactions.push({ ...sale, type: 'restock' });
+                        }
+                    });
+                }
+            });
+            
+            const finalTotalProfit = globalTotalRealizedRevenue - globalTotalRealizedCostOfSoldGoods;
+            // --- 3. UPDATE GLOBAL UI ELEMENTS ---
+            totalInvestmentEl.textContent = `$${globalTotalInvestment.toFixed(2)}`;
+            totalRevenueEl.textContent = `$${globalTotalRealizedRevenue.toFixed(2)}`;
+            totalSoldQtyEl.textContent = globalTotalSoldQuantity; 
+            totalProfitEl.textContent = `$${finalTotalProfit.toFixed(2)}`;
+            
+            if (finalTotalProfit < 0) {
+                 totalProfitEl.classList.remove('text-green-300');
+                 totalProfitEl.classList.add('text-red-300');
+                 totalProfitEl.parentElement.classList.remove('border-green-300');
+                 totalProfitEl.parentElement.classList.add('border-red-300');
+            } else {
+                 totalProfitEl.classList.add('text-green-300');
+                 totalProfitEl.classList.remove('text-red-300');
+                 totalProfitEl.parentElement.classList.add('border-green-300');
+                 totalProfitEl.parentElement.classList.remove('border-red-300');
+            }
+            // --- 4. RENDER CATEGORY SUMMARY BOXES ---
+            categorySummariesEl.innerHTML = '';
+            
+            categoryTotals.forEach((totals, categoryName) => {
+                const categoryProfit = totals.revenue - totals.cost;
+                const profitColorClass = categoryProfit >= 0 ? 'text-green-600' : 'text-red-600';
+                
+                // Sort transactions by date descending
+                totals.transactions.sort((a, b) => b.saleDate - a.saleDate);
+                // Create transaction rows
+                const transactionRows = totals.transactions.map(t => {
+                    const date = new Date(t.saleDate).toLocaleDateString() + ' ' + new Date(t.saleDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const isSale = t.type === 'sale';
+                    const typeLabel = isSale ? 'Sale' : 'Restock';
+                    const typeColor = isSale ? 'text-green-600 bg-green-50' : 'text-blue-600 bg-blue-50';
+                    const amountText = isSale ? `+$${t.priceAtSale.toFixed(2)}` : '-';
+                    
+                    return `
+                        <div class="flex justify-between items-center text-sm py-2 border-b border-gray-100 last:border-0">
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-0.5 rounded text-xs font-medium ${typeColor}">${typeLabel}</span>
+                                <span class="text-gray-500 text-xs">${date}</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-gray-700 font-medium truncate max-w-[150px]">${t.productName}</span>
+                                <span class="text-gray-900 font-semibold w-16 text-right">${amountText}</span>
+                                <button data-delete-transaction-id="${t.id}" class="text-red-400 hover:text-red-600 transition" title="Delete/Undo Transaction">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                      <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 0 0 1.5.06l.3-7.5Z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                const historySection = totals.transactions.length > 0 ? `
+                    <div class="mt-4 pt-3 border-t border-gray-100">
+                        <button data-toggle-category="${categoryName}" class="flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium focus:outline-none w-full justify-center py-1">
+                            <span>View History</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 ml-1">
+                              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div id="transaction-list-${categoryName}" class="hidden mt-2 bg-gray-50 rounded-md p-2 max-h-60 overflow-y-auto">
+                            ${transactionRows}
+                        </div>
+                    </div>
+                ` : `<p class="text-xs text-gray-400 text-center mt-4 pt-2 border-t border-gray-100">No history yet</p>`;
+                const summaryHtml = `
+                    <div class="bg-white p-4 rounded-lg shadow-lg border-l-4 border-indigo-600">
+                        <h3 class="text-lg font-bold text-gray-800 mb-3">${categoryName} Sales Summary</h3>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            
+                            <div class="bg-gray-50 p-3 rounded-md">
+                                <p class="text-sm font-medium text-gray-500">Units Sold</p>
+                                <p class="text-xl font-extrabold mt-1 text-indigo-700">${totals.soldQty}</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-3 rounded-md">
+                                <p class="text-sm font-medium text-gray-500">Revenue</p>
+                                <p class="text-xl font-extrabold mt-1 text-indigo-700">$${totals.revenue.toFixed(2)}</p>
+                            </div>
+                            <div class="bg-indigo-50 p-3 rounded-md border border-indigo-200">
+                                <p class="text-sm font-medium text-gray-600">Profit</p>
+                                <p class="text-xl font-extrabold mt-1 ${profitColorClass}">$${categoryProfit.toFixed(2)}</p>
+                            </div>
+                        </div>
+                        ${historySection}
+                    </div>
+                `;
+                categorySummariesEl.innerHTML += summaryHtml;
+            });
+            
+            if (categories.length > 0) {
+                 categorySummariesEl.innerHTML = '<h2 class="text-xl font-bold text-gray-800 mb-4">Category-Specific Financials (Realized)</h2>' + categorySummariesEl.innerHTML;
+            } else {
+                 categorySummariesEl.innerHTML = '<p class="text-gray-500 text-center py-4">Add categories to track category-specific financials.</p>';
+            }
+        }
+        
+        // Global event listener for all item-related buttons
+        inventoryContainer.addEventListener('click', (event) => {
+            const button = event.target.closest('button');
+            if (!button) return;
+            const docId = button.dataset.id;
+            const action = button.dataset.action;
+            const item = currentItems.find(i => i.id === docId); 
+            if (!item) {
+                console.error("Item not found for action.");
+                return;
+            }
+            if (action === 'edit') {
+                editProduct(item);
+            } else if (action === 'delete') {
+                deleteProduct(item.id);
+            } else if (action === 'sell') { 
+                // Call the new combined handler
+                if (item.quantity > 0) {
+                    handleSaleOrRestock(docId, 'sell');
+                } else {
+                    showModal("Stock Zero", "Cannot record a sale: Stock quantity is already 0.");
+                }
+            } else if (action === 'restock') { 
+                // Call the new combined handler
+                handleSaleOrRestock(docId, 'restock');
+            }
+        });
+        // Form submission handler
+        inventoryForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const productName = document.getElementById('product-name').value.trim();
+            const retailCost = parseFloat(document.getElementById('retail-cost').value);
+            const sellingPrice = parseFloat(document.getElementById('selling-price').value);
+            const size = document.getElementById('size').value.trim();
+            const quantity = parseInt(document.getElementById('quantity').value, 10);
+            const color = document.getElementById('color').value.trim();
+            // Get selected categories
+            const selectedCategories = Array.from(categoriesSelect.selectedOptions).map(option => option.value);
+            
+            if (retailCost < 0 || sellingPrice < 0 || quantity <= 0) {
+                 showModal("Input Error", "Cost, price, and initial quantity must be valid positive numbers.");
+                 return;
+            }
+            
+            if (selectedCategories.length === 0) {
+                 showModal("Input Error", "Please select at least one category for the item.");
+                 return;
+            }
+            const productData = {
+                productName,
+                retailCost: retailCost, // Current Cost
+                sellingPrice: sellingPrice, // Current Price
+                size,
+                quantity: quantity, // Current Stock
+                color,
+                categories: selectedCategories,
+                timestamp: Date.now(), 
             };
-            if(editingDocId) await updateDoc(doc(db, INVENTORY_COLLECTION_PATH, editingDocId), data);
-            else await addDoc(collection(db, INVENTORY_COLLECTION_PATH), data);
-            toggleForm();
-        };
-
+            // Note: salesQuantity is no longer stored on the item document.
+            await saveProduct(productData, editingDocId);
+            
+            // Reset form and state after successful save/update
+            inventoryForm.reset();
+            editingDocId = null;
+            // Reset category selection
+            Array.from(categoriesSelect.options).forEach(option => option.selected = false);
+            const submitButton = inventoryForm.querySelector('button[type="submit"]');
+            submitButton.textContent = 'Add Item to Inventory';
+            submitButton.classList.remove('bg-orange-500', 'hover:bg-orange-600');
+            submitButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            
+            // Collapse the form after adding/updating
+            if (formSection.classList.contains('is-expanded')) {
+                toggleForm();
+            }
+        });
+        // Register the scroll listener
+        if (backToTopBtn) {
+            window.addEventListener('scroll', handleScroll);
+        }
+        // Start the application
         window.onload = initializeFirebase;
     </script>
 </body>
