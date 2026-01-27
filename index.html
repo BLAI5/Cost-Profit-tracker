@@ -15,8 +15,8 @@
             transition: max-height 0.4s ease-out, padding 0.4s ease-out;
         }
         .collapsible-panel.is-expanded {
-            max-height: 1000px; 
-            padding-top: 1.5rem; 
+            max-height: 1000px;
+            padding-top: 1.5rem;
             padding-bottom: 1.5rem;
         }
     </style>
@@ -37,35 +37,46 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
-            
             <div id="formSection" class="collapsible-panel px-6">
                 <form id="inventoryForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="md:col-span-2 lg:col-span-1">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                        <input type="text" id="productName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <input type="text" id="product-name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Retail Cost ($)</label>
-                        <input type="number" step="0.01" id="retailCost" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <input type="number" step="0.01" id="retail-cost" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Selling Price ($)</label>
-                        <input type="number" step="0.01" id="sellingPrice" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <input type="number" step="0.01" id="selling-price" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                        <input type="text" id="size" placeholder="e.g., Medium, 12x12" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <input type="text" id="size" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                        <input type="text" id="color" placeholder="e.g., Blue, Matte Black" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <input type="text" id="color" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Quantity in Stock</label>
-                        <input type="number" id="quantity" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <input type="number" id="quantity" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="lg:col-span-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categories (Hold Ctrl to select multiple)</label>
+                        <select id="categories" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg h-24">
+                            <option value="Accessories">Accessories</option>
+                            <option value="Apparel">Apparel</option>
+                            <option value="Decals">Decals</option>
+                            <option value="Drinkware">Drinkware</option>
+                            <option value="Home Decor">Home Decor</option>
+                            <option value="Stationery">Stationery</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
                     <div class="md:col-span-2 lg:col-span-3 flex justify-end">
-                        <button type="submit" class="bg-indigo-600 text-white px-8 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md focus:ring-4 focus:ring-indigo-200">
+                        <button type="submit" id="submitBtn" class="bg-indigo-600 text-white px-8 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 shadow-md">
                             Add Item to Inventory
                         </button>
                     </div>
@@ -73,56 +84,43 @@
             </div>
         </section>
 
-        <section class="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <section class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h2 class="text-xl font-bold text-gray-800">Current Inventory</h2>
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="relative">
-                        <input type="text" id="searchInput" placeholder="Search items..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all w-64">
-                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                    <button id="printBtn" class="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                        </svg>
+                <div class="flex items-center gap-4">
+                    <input type="text" id="searchInput" placeholder="Search..." class="px-4 py-2 border rounded-lg w-64">
+                    <button id="printBtn" class="bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-900">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         Print Inventory
                     </button>
                 </div>
             </div>
-
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-sm font-semibold uppercase tracking-wider">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-600">
+                        <tr>
                             <th class="px-6 py-4">Item Details</th>
                             <th class="px-6 py-4">Pricing</th>
-                            <th class="px-6 py-4">Stock</th>
-                            <th class="px-6 py-4">Sales</th>
+                            <th class="px-6 py-4 text-center">Stock</th>
+                            <th class="px-6 py-4 text-center">Sales</th>
                             <th class="px-6 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="inventoryList" class="divide-y divide-gray-100"></tbody>
                 </table>
             </div>
-            
-            <div id="emptyState" class="hidden p-12 text-center">
-                <p class="text-gray-500 text-lg">No inventory items found.</p>
-            </div>
+        </section>
+
+        <section id="historySection" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Sales History by Category</h2>
+            <div id="categoryHistory" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
     </main>
-
-    <button id="backToTop" class="fixed bottom-8 right-8 bg-indigo-600 text-white p-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-all hover:bg-indigo-700">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7 7 7M5 19l7-7 7 7"></path>
-        </svg>
-    </button>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, onSnapshot, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse(__firebase_config);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -130,202 +128,183 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        const INVENTORY_COLLECTION_PATH = `artifacts/${appId}/public/data/inventory`;
+        const SALES_COLLECTION_PATH = `artifacts/${appId}/public/data/sales`;
+
         let currentUser = null;
         let currentItems = [];
+        let salesHistory = [];
         let editingDocId = null;
 
         const inventoryForm = document.getElementById('inventoryForm');
         const inventoryList = document.getElementById('inventoryList');
-        const emptyState = document.getElementById('emptyState');
-        const searchInput = document.getElementById('searchInput');
-        const authStatus = document.getElementById('authStatus');
-        const printBtn = document.getElementById('printBtn');
-        const backToTopBtn = document.getElementById('backToTop');
+        const categoriesSelect = document.getElementById('categories');
         const toggleFormBtn = document.getElementById('toggleFormBtn');
         const formSection = document.getElementById('formSection');
         const toggleIcon = document.getElementById('toggleIcon');
-
-        const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        const searchInput = document.getElementById('searchInput');
 
         const toggleForm = () => {
-            const isExpanded = formSection.classList.toggle('is-expanded');
-            toggleIcon.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-        };
-
-        toggleFormBtn.addEventListener('click', toggleForm);
-
-        const handleScroll = () => {
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
-                backToTopBtn.classList.add('opacity-100', 'pointer-events-auto');
-            } else {
-                backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
-                backToTopBtn.classList.remove('opacity-100', 'pointer-events-auto');
+            const expanded = formSection.classList.toggle('is-expanded');
+            toggleIcon.style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+            if (!expanded) {
+                inventoryForm.reset();
+                editingDocId = null;
+                document.getElementById('submitBtn').textContent = 'Add Item to Inventory';
             }
         };
+        toggleFormBtn.onclick = toggleForm;
 
         const initializeFirebase = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth error:", error);
-                authStatus.textContent = "Offline Mode";
-            }
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+            else await signInAnonymously(auth);
         };
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, user => {
             currentUser = user;
             if (user) {
-                authStatus.innerHTML = `<span class="flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full"></span> Online</span>`;
-                setupInventoryListener();
+                document.getElementById('authStatus').textContent = "Online";
+                setupListeners();
             }
         });
 
-        const setupInventoryListener = () => {
-            if (!currentUser) return;
-            const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'inventory');
-            onSnapshot(collectionPath, (snapshot) => {
-                currentItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderInventory();
+        function setupListeners() {
+            onSnapshot(collection(db, INVENTORY_COLLECTION_PATH), snap => {
+                currentItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                render();
             });
-        };
+            onSnapshot(collection(db, SALES_COLLECTION_PATH), snap => {
+                salesHistory = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                render();
+            });
+        }
 
-        const renderInventory = () => {
-            const searchTerm = searchInput.value.toLowerCase();
-            const filteredItems = currentItems.filter(item => 
-                item.productName.toLowerCase().includes(searchTerm) || 
-                (item.color && item.color.toLowerCase().includes(searchTerm))
-            );
-
-            if (filteredItems.length === 0) {
-                inventoryList.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            inventoryList.innerHTML = filteredItems.map(item => `
-                <tr class="hover:bg-gray-50 transition-colors group">
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-gray-900 text-lg">${item.productName}</div>
-                        <div class="flex gap-2 mt-1">
-                            ${item.size ? `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">${item.size}</span>` : ''}
-                            ${item.color ? `<span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded">${item.color}</span>` : ''}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm text-gray-500">Retail: ${formatCurrency(item.retailCost)}</div>
-                        <div class="text-base font-semibold text-green-600">Sell: ${formatCurrency(item.sellingPrice)}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-2">
-                            <span class="text-lg font-bold ${item.quantity <= 2 ? 'text-red-500' : 'text-gray-800'}">${item.quantity}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-bold text-indigo-600">${item.salesQuantity || 0}</span>
-                            <button onclick="window.updateSales('${item.id}', ${item.salesQuantity || 0}, ${item.quantity})" 
-                                class="bg-indigo-50 text-indigo-600 p-1.5 rounded-full hover:bg-indigo-600 hover:text-white transition-all disabled:opacity-30"
-                                ${item.quantity <= 0 ? 'disabled' : ''}>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            </button>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <button onclick='window.editItem(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">Edit</button>
-                        <button onclick="window.deleteItem('${item.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg">Delete</button>
-                    </td>
-                </tr>
-            `).join('');
-        };
-
-        const printItems = () => {
-            const printWindow = window.open('', '_blank');
-            const sortedItems = [...currentItems].sort((a, b) => a.productName.localeCompare(b.productName));
-            let tableRows = sortedItems.map(item => `
-                <tr>
-                    <td style="padding: 4px; border-bottom: 1px solid #eee;">${item.productName}</td>
-                    <td style="padding: 4px; border-bottom: 1px solid #eee;">${item.size || '-'}</td>
-                    <td style="padding: 4px; border-bottom: 1px solid #eee;">${item.color || '-'}</td>
-                    <td style="padding: 4px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-                </tr>
-            `).join('');
-
-            printWindow.document.write(`
-                <html>
-                    <head><style>
-                        body { font-family: sans-serif; font-size: 10pt; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                        th { text-align: left; border-bottom: 1px solid #000; padding: 4px; }
-                        h1 { font-size: 14pt; margin-bottom: 5px; }
-                    </style></head>
-                    <body>
-                        <h1>JessaB Designing - Inventory List</h1>
-                        <p>Date: ${new Date().toLocaleDateString()}</p>
-                        <table>
-                            <thead><tr><th>Name</th><th>Size</th><th>Color</th><th style="text-align:center;">Qty</th></tr></thead>
-                            <tbody>${tableRows}</tbody>
-                        </table>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
-        };
-
-        window.updateSales = async (id, currentSales, stock) => {
-            if (stock <= 0 || !currentUser) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'inventory', id);
-            await updateDoc(docRef, { salesQuantity: (currentSales || 0) + 1, quantity: stock - 1 });
-        };
-
-        window.deleteItem = async (id) => {
-            if (!confirm('Remove this item?')) return;
-            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory', id));
+        window.updateSales = async (id, prodName, stock, cats) => {
+            if (stock <= 0) return;
+            await updateDoc(doc(db, INVENTORY_COLLECTION_PATH, id), { quantity: stock - 1 });
+            await addDoc(collection(db, SALES_COLLECTION_PATH), {
+                productId: id,
+                productName: prodName,
+                categories: cats || ['Other'],
+                saleDate: Date.now(),
+                type: 'SALE'
+            });
         };
 
         window.editItem = (item) => {
             editingDocId = item.id;
-            document.getElementById('productName').value = item.productName;
-            document.getElementById('retailCost').value = item.retailCost;
-            document.getElementById('sellingPrice').value = item.sellingPrice;
+            document.getElementById('product-name').value = item.productName;
+            document.getElementById('retail-cost').value = item.retailCost;
+            document.getElementById('selling-price').value = item.sellingPrice;
             document.getElementById('size').value = item.size || '';
             document.getElementById('color').value = item.color || '';
             document.getElementById('quantity').value = item.quantity;
+            Array.from(categoriesSelect.options).forEach(opt => opt.selected = item.categories?.includes(opt.value));
+            document.getElementById('submitBtn').textContent = 'Update Product';
             if (!formSection.classList.contains('is-expanded')) toggleForm();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        searchInput.addEventListener('input', renderInventory);
-        printBtn.addEventListener('click', printItems);
+        window.deleteItem = async id => { if(confirm('Delete?')) await deleteDoc(doc(db, INVENTORY_COLLECTION_PATH, id)); };
 
-        inventoryForm.addEventListener('submit', async (e) => {
+        // SIMPLE PRINT FUNCTION
+        document.getElementById('printBtn').onclick = () => {
+            const printWindow = window.open('', '_blank');
+            const sorted = [...currentItems].sort((a,b) => a.productName.localeCompare(b.productName));
+            let rows = sorted.map(i => `
+                <tr>
+                    <td>${i.productName}</td>
+                    <td>${i.size || '-'}</td>
+                    <td>${i.color || '-'}</td>
+                    <td style="text-align:center">${i.quantity}</td>
+                </tr>`).join('');
+
+            printWindow.document.write(`
+                <html><head><style>
+                    body { font-family: sans-serif; font-size: 11pt; padding: 20px; }
+                    h1 { border-bottom: 2px solid #333; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                    th { text-align: left; border-bottom: 1px solid #000; padding: 8px; }
+                    td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+                </style></head><body>
+                    <h1>JessaB Stock List</h1>
+                    <p>Generated: ${new Date().toLocaleDateString()}</p>
+                    <table>
+                        <thead><tr><th>Name</th><th>Size</th><th>Color</th><th style="text-align:center">Qty</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </body></html>`);
+            printWindow.document.close();
+            printWindow.print();
+        };
+
+        function render() {
+            const term = searchInput.value.toLowerCase();
+            const filtered = currentItems.filter(i => i.productName.toLowerCase().includes(term));
+            
+            inventoryList.innerHTML = filtered.map(item => {
+                const itemSales = salesHistory.filter(s => s.productId === item.id).length;
+                return `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-gray-900">${item.productName}</div>
+                        <div class="text-xs text-gray-500">${item.size || ''} ${item.color ? '• ' + item.color : ''}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <div class="text-gray-500">Retail: $${item.retailCost}</div>
+                        <div class="font-semibold text-green-600">Sell: $${item.sellingPrice}</div>
+                    </td>
+                    <td class="px-6 py-4 text-center font-bold ${item.quantity < 3 ? 'text-red-500' : 'text-gray-800'}">${item.quantity}</td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="font-bold text-indigo-600">${itemSales}</span>
+                            <button onclick="window.updateSales('${item.id}', '${item.productName.replace(/'/g, "\\'")}', ${item.quantity}, ${JSON.stringify(item.categories)})" class="bg-indigo-50 text-indigo-600 p-1 rounded-full hover:bg-indigo-600 hover:text-white">+</button>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick='window.editItem(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="text-blue-600 mr-3">Edit</button>
+                        <button onclick="window.deleteItem('${item.id}')" class="text-red-600">Delete</button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            const cats = ["Accessories", "Apparel", "Decals", "Drinkware", "Home Decor", "Stationery", "Other"];
+            document.getElementById('categoryHistory').innerHTML = cats.map(cat => {
+                const cHist = salesHistory.filter(s => s.categories?.includes(cat)).sort((a,b) => b.saleDate - a.saleDate);
+                if (cHist.length === 0) return '';
+                return `
+                    <div class="border rounded-lg p-4 bg-gray-50">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="window.toggleHist('${cat}')">
+                            <h3 class="font-bold text-gray-700">${cat}</h3>
+                            <span class="bg-indigo-600 text-white text-xs px-2 py-1 rounded-full">${cHist.length} Sales</span>
+                        </div>
+                        <div id="hist-${cat}" class="hidden mt-3 max-h-40 overflow-y-auto pt-2 border-t text-[10px] space-y-1">
+                            ${cHist.map(h => `<div>${new Date(h.saleDate).toLocaleDateString()} - ${h.productName}</div>`).join('')}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        window.toggleHist = (cat) => document.getElementById(`hist-${cat}`).classList.toggle('hidden');
+        searchInput.oninput = render;
+
+        inventoryForm.onsubmit = async (e) => {
             e.preventDefault();
             const data = {
-                productName: document.getElementById('productName').value,
-                retailCost: parseFloat(document.getElementById('retailCost').value),
-                sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
+                productName: document.getElementById('product-name').value,
+                retailCost: parseFloat(document.getElementById('retail-cost').value),
+                sellingPrice: parseFloat(document.getElementById('selling-price').value),
                 size: document.getElementById('size').value,
-                color: document.getElementById('color').value,
                 quantity: parseInt(document.getElementById('quantity').value),
+                color: document.getElementById('color').value,
+                categories: Array.from(categoriesSelect.selectedOptions).map(o => o.value),
                 timestamp: Date.now()
             };
-            if (editingDocId) {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'inventory', editingDocId), data);
-                editingDocId = null;
-            } else {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'inventory'), { ...data, salesQuantity: 0 });
-            }
-            inventoryForm.reset();
-            if (formSection.classList.contains('is-expanded')) toggleForm();
-        });
+            if(editingDocId) await updateDoc(doc(db, INVENTORY_COLLECTION_PATH, editingDocId), data);
+            else await addDoc(collection(db, INVENTORY_COLLECTION_PATH), data);
+            toggleForm();
+        };
 
-        window.addEventListener('scroll', handleScroll);
         window.onload = initializeFirebase;
     </script>
 </body>
