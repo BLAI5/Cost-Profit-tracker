@@ -56,6 +56,83 @@
             font-size: 0.875rem;
             line-height: 1.25rem;
         }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            /* Reset body background */
+            body { background-color: white !important; }
+            #app-container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            
+            /* HIDE elements not needed for the report */
+            #form-toggle-section, 
+            #input-form-section, 
+            #search-section, 
+            #back-to-top-btn, 
+            #category-modal,
+            #manage-categories-btn,
+            #custom-modal,
+            .no-print { 
+                display: none !important; 
+            }
+
+            /* Hide buttons inside inventory cards and headers */
+            #inventory-container button, 
+            #inventory-list-section button { 
+                display: none !important; 
+            }
+
+            /* Header adjustments for print */
+            header {
+                margin-bottom: 1rem !important;
+                padding: 1rem 0 !important;
+                box-shadow: none !important;
+                border-bottom: 2px solid #333;
+                background-color: white !important;
+            }
+
+            /* Inventory List Clean up */
+            #inventory-list-section {
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+            #inventory-container .bg-white {
+                border: none !important;
+                border-bottom: 1px solid #ddd !important;
+                box-shadow: none !important;
+                padding: 1rem 0 !important;
+                page-break-inside: avoid; /* Prevent items from splitting across pages */
+            }
+
+            /* Force Financial Summary to look like a document report, not a UI card */
+            #financial-summary { 
+                background-color: white !important; 
+                color: black !important; 
+                box-shadow: none !important; 
+                border: 2px solid #000 !important;
+                margin-top: 2rem !important;
+                page-break-inside: avoid;
+            }
+            #financial-summary h2, #financial-summary p, #financial-summary svg { 
+                color: black !important; 
+            }
+            #financial-summary .bg-white\/10, #financial-summary .bg-white\/20 {
+                background-color: white !important;
+                border: 1px solid #ccc !important;
+            }
+            #financial-summary .text-indigo-200, #financial-summary .text-indigo-300 {
+                color: #4b5563 !important; /* gray-600 */
+            }
+            #financial-summary .text-white {
+                color: black !important;
+            }
+
+            /* Category Summaries */
+            #category-summaries .bg-white {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                page-break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-6 md:p-8">
@@ -184,15 +261,26 @@
 
         <!-- Inventory List Section -->
         <div id="inventory-list-section" class="bg-white p-4 sm:p-6 rounded-lg shadow-xl mb-8 hidden">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
                 <h2 class="text-xl font-semibold text-gray-700">Current Inventory Stock & Sales</h2>
-                <!-- Button to scroll to financial summary -->
-                <button id="scroll-to-summary-btn" class="bg-gray-200 text-gray-700 text-sm font-medium py-2 px-3 rounded-md hover:bg-gray-300 transition duration-150 flex items-center shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 18H7.5m-3-6h15m-1.5 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0" />
-                    </svg>
-                    View Financial Summary
-                </button>
+                
+                <div class="flex space-x-2">
+                    <!-- NEW: Print Button -->
+                    <button onclick="window.print()" class="bg-gray-200 text-gray-700 text-sm font-medium py-2 px-3 rounded-md hover:bg-gray-300 transition duration-150 flex items-center shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                        </svg>
+                        Print Report
+                    </button>
+
+                    <!-- Button to scroll to financial summary -->
+                    <button id="scroll-to-summary-btn" class="bg-gray-200 text-gray-700 text-sm font-medium py-2 px-3 rounded-md hover:bg-gray-300 transition duration-150 flex items-center shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 18H7.5m-3-6h15m-1.5 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0" />
+                        </svg>
+                        View Financial Summary
+                    </button>
+                </div>
             </div>
             
             <div id="inventory-container" class="space-y-4">
@@ -294,7 +382,6 @@
             </div>
         </div>
 
-
     </div>
 
     <!-- NEW: Back to Top Button -->
@@ -349,7 +436,6 @@
         // NEW: Separate collection for all sales transactions to lock in financial data
         const SALES_LEDGER_COLLECTION_PATH = `artifacts/${appId}/public/data/sales_ledger`;
 
-
         // UI elements
         const loadingEl = document.getElementById('loading');
         const formToggleBtn = document.getElementById('toggle-form-btn'); 
@@ -381,7 +467,6 @@
         const newCategoryNameInput = document.getElementById('new-category-name');
         const categoryListContainer = document.getElementById('category-list-container');
 
-
         // Modal elements
         const modalEl = document.getElementById('custom-modal');
         const modalTitleEl = document.getElementById('modal-title');
@@ -390,7 +475,6 @@
         
         // Back to Top Button element initialization
         const backToTopBtn = document.getElementById('back-to-top-btn');
-
 
         // State for editing
         let editingDocId = null;
@@ -491,7 +575,6 @@
                 }
             }
         }
-
 
         // --- FIREBASE INITIALIZATION & AUTHENTICATION ---
         async function initializeFirebase() {
@@ -681,7 +764,6 @@
             });
         }
 
-
         
         // --- INVENTORY & SALES LEDGER CRUD OPERATIONS ---
 
@@ -772,7 +854,6 @@
                             type: 'sale' // Added type to distinguish from restock
                         };
                         transaction.set(newTransactionRef, saleData);
-
 
                     } else if (changeType === 'restock') {
                         // 1. Increment quantity in inventory
@@ -868,7 +949,6 @@
                  showModal("Error", `Failed to undo transaction: ${error.message}`);
              }
         }
-
 
         // 5. Delete Product
         async function deleteProduct(docId) {
@@ -1029,7 +1109,6 @@
                 }
                 const marginColor = profitMarginPercentage >= 30 ? 'text-green-700' : (profitMarginPercentage > 0 ? 'text-yellow-700' : 'text-red-700');
                 // ------------------------------------
-
 
                 // Sum up realized profit and revenue from the ledger for this specific item
                 const totalProfitFromSales = itemSales.reduce((sum, sale) => sum + (sale.priceAtSale - sale.costAtSale), 0);
@@ -1255,7 +1334,6 @@
                     </div>
                 ` : `<p class="text-xs text-gray-400 text-center mt-4 pt-2 border-t border-gray-100">No history yet</p>`;
 
-
                 const summaryHtml = `
                     <div class="bg-white p-4 rounded-lg shadow-lg border-l-4 border-indigo-600">
                         <h3 class="text-lg font-bold text-gray-800 mb-3">${categoryName} Sales Summary</h3>
@@ -1343,7 +1421,6 @@
                  showModal("Input Error", "Please select at least one category for the item.");
                  return;
             }
-
 
             const productData = {
                 productName,
