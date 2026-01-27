@@ -355,47 +355,42 @@
             `).join('');
         };
 
-        // Compact Print Inventory - Single lines per item
+        // Simple Print Inventory - Displaying only Name, Size, Color, and Quantity
         const printItems = () => {
             const printWindow = window.open('', '_blank');
             const items = currentItems;
             
             let tableRows = items.map(item => `
                 <tr>
-                    <td>${item.productName}</td>
-                    <td>${item.size || '-'}</td>
-                    <td>${item.color || '-'}</td>
-                    <td style="text-align: center;">${item.quantity}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.productName}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.size || '-'}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.color || '-'}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
                 </tr>
             `).join('');
 
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>JessaB Designing Inventory</title>
+                        <title>JessaB Designing - Inventory Printout</title>
                         <style>
-                            @page { margin: 1cm; }
-                            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #000; padding: 0; margin: 0; font-size: 10pt; }
-                            h1 { font-size: 16pt; margin: 0 0 10px 0; border-bottom: 2px solid #000; padding-bottom: 5px; }
-                            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                            th { text-align: left; padding: 4px; border-bottom: 1px solid #000; font-size: 9pt; text-transform: uppercase; }
-                            td { padding: 4px; border-bottom: 1px solid #eee; }
-                            .header-meta { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 5px; font-size: 8pt; color: #555; }
+                            body { font-family: sans-serif; color: #333; padding: 20px; }
+                            h1 { text-align: center; color: #000; margin-bottom: 30px; }
+                            table { width: 100%; border-collapse: collapse; }
+                            th { background-color: #f8f8f8; text-align: left; padding: 12px 10px; border-bottom: 2px solid #ddd; }
+                            .date { text-align: right; font-size: 0.9em; color: #666; margin-bottom: 20px; }
                         </style>
                     </head>
                     <body>
-                        <div class="header-meta">
-                            <span>JessaB Designing</span>
-                            <span>Printed: ${new Date().toLocaleDateString()}</span>
-                        </div>
-                        <h1>Inventory Report</h1>
+                        <h1>JessaB Designing Inventory</h1>
+                        <div class="date">Printed on: ${new Date().toLocaleDateString()}</div>
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 40%;">Product Name</th>
-                                    <th style="width: 20%;">Size</th>
-                                    <th style="width: 25%;">Color</th>
-                                    <th style="width: 15%; text-align: center;">Qty</th>
+                                    <th>Item Name</th>
+                                    <th>Size</th>
+                                    <th>Color</th>
+                                    <th style="text-align: center;">Qty</th>
                                 </tr>
                             </thead>
                             <tbody>
