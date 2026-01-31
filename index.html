@@ -65,6 +65,7 @@
             #search-section, 
             #back-to-top-btn, 
             #scroll-to-summary-btn, 
+            #category-summaries, /* Hide category breakdown to focus on item list */
             .no-print,
             #custom-modal,
             #category-modal,
@@ -77,6 +78,7 @@
                 background-color: white !important;
                 padding: 0 !important;
                 margin: 0 !important;
+                font-size: 10pt; /* Smaller base font */
             }
             .max-w-4xl {
                 max-width: 100% !important;
@@ -85,24 +87,118 @@
             #app-container {
                 padding: 0 !important;
             }
-            
-            /* Expand hidden histories for printing if desired, or keep hidden */
-            [id^="transaction-list-"] {
-                display: block !important;
-                max-height: none !important;
-                overflow: visible !important;
-            }
 
-            /* Prevent page breaks inside cards */
-            .bg-white {
-                box-shadow: none !important;
-                border: 1px solid #eee !important;
-                page-break-inside: avoid;
-            }
-
+            /* HEADER COMPACTING */
             header {
                 box-shadow: none !important;
                 border-bottom: 2px solid #333 !important;
+                padding: 4px 0 !important;
+                margin-bottom: 10px !important;
+            }
+            header h1 {
+                font-size: 16pt !important;
+            }
+            header img {
+                height: 30px !important; /* Smaller logo */
+                width: auto !important;
+            }
+
+            /* FINANCIAL SUMMARY COMPACTING */
+            #financial-summary {
+                margin-top: 0 !important;
+                padding: 8px !important;
+                background-color: transparent !important;
+                color: black !important;
+                box-shadow: none !important;
+                border-bottom: 1px solid #ccc !important;
+                display: block !important;
+            }
+            #financial-summary h2 { display: none; } /* Hide title */
+            #financial-summary .grid {
+                display: flex !important;
+                justify-content: space-between;
+                gap: 10px;
+            }
+            #financial-summary div {
+                background: none !important;
+                padding: 0 !important;
+                border: none !important;
+                text-align: left !important;
+            }
+            #financial-summary p { color: #333 !important; font-size: 9pt !important; }
+            #financial-summary .text-2xl, #financial-summary .text-3xl { font-size: 11pt !important; font-weight: bold !important; margin-top: 0 !important; }
+
+            /* INVENTORY LIST TRANSFORMATION */
+            #inventory-list-section {
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+            }
+            #inventory-list-section h2 { display: none; } /* Hide section title */
+            #inventory-list-section button { display: none; }
+            
+            #inventory-container {
+                display: block !important;
+            }
+
+            /* ITEM ROW STYLING */
+            #inventory-container > div {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                padding: 2px 0 !important; /* Very tight padding */
+                margin: 0 !important;
+                border: none !important;
+                border-bottom: 1px dashed #ddd !important; /* Light separator */
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                page-break-inside: avoid;
+            }
+
+            /* LEFT SIDE (Data) */
+            #inventory-container > div > div.flex-grow {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: baseline !important;
+                width: 100% !important;
+            }
+
+            /* 1. PRODUCT NAME */
+            #inventory-container > div > div.flex-grow h3 {
+                font-size: 10pt !important;
+                margin: 0 !important;
+                width: 40% !important; /* Fixed width column */
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* 2. DETAILS (Size/Color) */
+            #inventory-container > div > div.flex-grow p.text-sm {
+                font-size: 9pt !important;
+                margin: 0 !important;
+                width: 30% !important; /* Fixed width column */
+                color: #444 !important;
+            }
+
+            /* Hide Tags */
+            #inventory-container > div > div.flex-grow .flex.flex-wrap {
+                display: none !important;
+            }
+
+            /* 3. STOCK & SOLD COUNTS */
+            #inventory-container > div > div.flex-grow .grid {
+                display: flex !important;
+                width: 30% !important;
+                justify-content: flex-end;
+                gap: 20px !important;
+                margin: 0 !important;
+                font-size: 10pt !important;
+            }
+
+            /* Hide the Right Column (Profit Box wrapper) */
+            #inventory-container > div > div.sm\:w-48 {
+                display: none !important;
             }
         }
     </style>
