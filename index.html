@@ -561,6 +561,8 @@
                         categories: data.categories || [],
                         costAtSale: data.retailCost,
                         priceAtSale: data.sellingPrice,
+                        size: data.size || 'N/A', // Added Size tracking
+                        color: data.color || 'N/A',
                         quantitySold: 1,
                         saleDate: Date.now(),
                         type: type === 'sell' ? 'sale' : 'restock'
@@ -568,6 +570,35 @@
                 });
             } catch (e) { showModal("Error", e.message); }
         }
+
+        // New function to delete a history item and revert the stock change
+        window.deleteTransaction = async (saleId, itemId, type) => {
+            if(!confirm("Delete this record? \n\nThis will revert the stock count for this item.")) return;
+            
+            try {
+                await runTransaction(db, async (t) => {
+                    // 1. Determine reversal direction
+                    // If we are deleting a 'sale' (which did -1), we need to +1. 
+                    // If deleting a 'restock' (which did +1), we need to -1.
+                    const adjustment = type === 'sale' ? 1 : -1;
+                    
+                    // 2. Update Inventory Stock
+                    const itemRef = doc(db, INVENTORY_COLLECTION_PATH, itemId);
+                    const itemSnap = await t.get(itemRef);
+                    
+                    // Only update stock if the item still exists in inventory
+                    if(itemSnap.exists()) {
+                        t.update(itemRef, { quantity: increment(adjustment) });
+                    }
+                    
+                    // 3. Delete the transaction record
+                    const saleRef = doc(db, SALES_LEDGER_COLLECTION_PATH, saleId);
+                    t.delete(saleRef);
+                });
+            } catch (e) {
+                showModal("Error", "Could not delete transaction: " + e.message);
+            }
+        };
 
         function renderInventory(items) {
             // 1. Filter by Category first (Used for Financial Summaries)
@@ -680,7 +711,22 @@
                         <div class="mt-2 no-print">
                             <button onclick="toggleHist('${cat}')" class="text-indigo-600 text-xs font-medium w-full py-1">View History</button>
                             <div id="hist-${cat}" class="hidden mt-2 bg-gray-50 p-2 rounded text-[10px] space-y-1">
-                                ${cHist.map(h => `<div>${new Date(h.saleDate).toLocaleDateString()} - ${h.productName} (${h.type})</div>`).join('')}
+                                ${cHist.map(h => `
+                                    <div class="flex justify-between items-center border-b border-gray-200 py-1 last:border-0">
+                                        <div class="flex-grow">
+                                            <span class="font-semibold text-gray-700">${new Date(h.saleDate).toLocaleDateString()}</span> - 
+                                            ${h.productName} 
+                                            <span class="text-gray-500">(${h.size || 'N/A'})</span>
+                                            <span class="text-xs uppercase bg-gray-200 px-1 rounded ml-1">${h.type}</span>
+                                        </div>
+                                        <button onclick="window.deleteTransaction('${h.id}', '${h.inventoryItemId}', '${h.type}')" 
+                                                class="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded px-2 py-0.5 transition font-bold"
+                                                title="Delete this record and revert stock">
+                                            ✕
+                                        </button>
+                                    </div>
+                                `).join('')}
+                                ${cHist.length === 0 ? '<p class="text-gray-400 italic">No history yet.</p>' : ''}
                             </div>
                         </div>
                     </div>
