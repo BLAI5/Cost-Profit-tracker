@@ -196,22 +196,36 @@
         </div>
         
         <!-- Search & Print Section -->
-        <div id="search-section" class="mb-6 hidden flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-grow">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.197 5.197a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>
-                </div>
-                <input type="text" id="search-input" placeholder="Search inventory..." class="block w-full rounded-lg border-0 py-3 pl-10 pr-4 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-md transition duration-150">
+        <div id="search-section" class="mb-6 hidden flex flex-col gap-4">
+            <!-- Filter Controls -->
+            <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
+                <label for="category-filter" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Filter Dashboard by Category
+                    <span class="text-xs font-normal text-gray-500 ml-1">(Hold Ctrl/Cmd to select multiple. Clear selection to see all.)</span>
+                </label>
+                <select id="category-filter" multiple class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border custom-select h-20 text-sm">
+                    <!-- Options populated by JS -->
+                </select>
             </div>
-            <!-- NEW PRINT BUTTON -->
-            <button onclick="window.print()" class="flex items-center justify-center px-4 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-50 transition duration-150">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231a1.125 1.125 0 0 1-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.658" />
-                </svg>
-                Print Report
-            </button>
+
+            <!-- Search & Print Row -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.197 5.197a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="search-input" placeholder="Search inventory by name, size..." class="block w-full rounded-lg border-0 py-3 pl-10 pr-4 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-md transition duration-150">
+                </div>
+                <!-- NEW PRINT BUTTON -->
+                <button onclick="window.print()" class="flex items-center justify-center px-4 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-50 transition duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231a1.125 1.125 0 0 1-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.658" />
+                    </svg>
+                    Print Report
+                </button>
+            </div>
         </div>
 
         <!-- Inventory List Section -->
@@ -230,7 +244,7 @@
         <div id="financial-summary-container">
             <div id="financial-summary" class="bg-indigo-700 p-4 sm:p-6 rounded-lg shadow-xl text-white mt-8 hidden">
                 <h2 class="text-xl font-bold mb-4">Overall Financial Summary</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-center">
                     <div class="bg-white/10 p-4 rounded-md">
                         <p class="text-sm font-medium text-indigo-200">Stock Investment</p>
                         <p id="total-investment" class="text-2xl font-extrabold mt-1">$0.00</p>
@@ -242,6 +256,10 @@
                     <div class="bg-white/10 p-4 rounded-md">
                         <p class="text-sm font-medium text-indigo-200">Revenue</p>
                         <p id="total-revenue" class="text-2xl font-extrabold mt-1">$0.00</p>
+                    </div>
+                    <div class="bg-white/10 p-4 rounded-md border border-indigo-300 border-dashed">
+                        <p class="text-sm font-medium text-indigo-200">Potential Profit</p>
+                        <p id="total-potential-profit" class="text-2xl font-extrabold mt-1">$0.00</p>
                     </div>
                     <div class="bg-white/20 p-4 rounded-md border-2 border-green-300">
                         <p class="text-sm font-medium text-green-300">REALIZED PROFIT</p>
@@ -318,6 +336,7 @@
         const inventoryContainer = document.getElementById('inventory-container');
         const searchInput = document.getElementById('search-input');
         const categoriesSelect = document.getElementById('categories');
+        const categoryFilterSelect = document.getElementById('category-filter'); // New selector
         const backToTopBtn = document.getElementById('back-to-top-btn');
 
         // Utils
@@ -366,6 +385,8 @@
 
                         formToggleBtn.onclick = toggleForm;
                         searchInput.oninput = () => renderInventory(currentItems);
+                        categoryFilterSelect.onchange = () => renderInventory(currentItems); // Trigger render on filter change
+
                         document.getElementById('scroll-to-summary-btn').onclick = () => document.getElementById('financial-summary-container').scrollIntoView({ behavior: 'smooth' });
                         document.getElementById('manage-categories-btn').onclick = () => document.getElementById('category-modal').classList.remove('hidden');
                         document.getElementById('close-category-modal-btn').onclick = () => document.getElementById('category-modal').classList.add('hidden');
@@ -396,7 +417,9 @@
         }
 
         function renderCategorySelect(cats) {
-            categoriesSelect.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+            const options = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+            categoriesSelect.innerHTML = options;
+            categoryFilterSelect.innerHTML = options; // Populate filter as well
         }
 
         function renderCategoryManagementList(cats) {
@@ -451,17 +474,32 @@
         }
 
         function renderInventory(items) {
+            // 1. Filter by Category first (Used for Financial Summaries)
+            const selectedFilters = Array.from(categoryFilterSelect.selectedOptions).map(o => o.value);
+            
+            const categoryFilteredItems = selectedFilters.length === 0 
+                ? items 
+                : items.filter(i => (i.categories || []).some(c => selectedFilters.includes(c)));
+            
+            // Filter sales to match the selected categories for accurate Revenue/Profit reporting
+            const categoryFilteredSales = selectedFilters.length === 0
+                ? currentSales
+                : currentSales.filter(s => (s.categories || []).some(c => selectedFilters.includes(c)));
+
+            // Update Summaries based on the Category View
+            renderFinancialSummaries(categoryFilteredItems, categoryFilteredSales, selectedFilters.length > 0 ? selectedFilters : currentCategories);
+
+            // 2. Filter by Search Term (Used for Visual List only)
             const term = searchInput.value.toLowerCase();
-            const filtered = items.filter(i => 
+            const finalFiltered = categoryFilteredItems.filter(i => 
                 i.productName.toLowerCase().includes(term) || 
                 i.size.toLowerCase().includes(term) || 
                 (i.categories || []).some(c => c.toLowerCase().includes(term))
             ).sort((a,b) => a.productName.localeCompare(b.productName));
 
-            renderFinancialSummaries(items, currentSales, currentCategories);
-            document.getElementById('no-items-message').classList.toggle('hidden', filtered.length > 0);
+            document.getElementById('no-items-message').classList.toggle('hidden', finalFiltered.length > 0);
             
-            inventoryContainer.innerHTML = filtered.map(item => {
+            inventoryContainer.innerHTML = finalFiltered.map(item => {
                 const sales = currentSales.filter(s => s.inventoryItemId === item.id && s.type !== 'restock');
                 const profit = sales.reduce((acc, s) => acc + (s.priceAtSale - s.costAtSale), 0);
                 const margin = item.sellingPrice > 0 ? ((item.sellingPrice - item.retailCost) / item.sellingPrice * 100).toFixed(1) : 0;
@@ -518,10 +556,14 @@
             let sold = sales.filter(s => s.type !== 'restock');
             let rev = sold.reduce((a, s) => a + (s.priceAtSale * s.quantitySold), 0);
             let cost = sold.reduce((a, s) => a + (s.costAtSale * s.quantitySold), 0);
+            
+            // Calculate Potential Profit: (Selling Price - Retail Cost) * Current Quantity for all items
+            let potential = items.reduce((a, i) => a + ((i.sellingPrice - i.retailCost) * i.quantity), 0);
 
             document.getElementById('total-investment').textContent = `$${inv.toFixed(2)}`;
             document.getElementById('total-sold-qty').textContent = sold.length;
             document.getElementById('total-revenue').textContent = `$${rev.toFixed(2)}`;
+            document.getElementById('total-potential-profit').textContent = `$${potential.toFixed(2)}`;
             document.getElementById('total-profit').textContent = `$${(rev - cost).toFixed(2)}`;
 
             const catContainer = document.getElementById('category-summaries');
