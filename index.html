@@ -829,6 +829,7 @@
         function updateReferenceCharts() {
             // Helper to initialize data structure
             const createDataStruct = () => ({
+                'XS': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} }, // Added XS
                 'S': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} },
                 'M': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} },
                 'L': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} },
@@ -862,7 +863,8 @@
                 if (text.includes('youth') || text.includes('kid') || text.includes('child') || size.startsWith('y')) gender = 'youth';
 
                 let normSize = 'Other';
-                if (size === 's' || size === 'small' || size === 'ys') normSize = 'S';
+                if (size === 'xs' || size === 'extra small' || size === 'yxs') normSize = 'XS'; // Added XS Logic
+                else if (size === 's' || size === 'small' || size === 'ys') normSize = 'S';
                 else if (size === 'm' || size === 'medium' || size === 'ym') normSize = 'M';
                 else if (size === 'l' || size === 'large' || size === 'yl') normSize = 'L';
                 else if (size === 'xl' || size === 'yxl') normSize = 'XL';
@@ -927,7 +929,7 @@
 
             // Render Function
             const renderTable = (type, elemId) => {
-                const sizes = ['S', 'M', 'L', 'XL', '2XL', '3XL', 'Other'];
+                const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'Other']; // Added XS to render list
                 const rows = sizes.map(size => {
                     const d = stats[type][size];
                     // Don't show "Other" row if empty
