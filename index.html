@@ -302,6 +302,18 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- NEW: Unclassified Items Debug Section -->
+                <div id="unclassified-container" class="mt-6 pt-4 border-t border-gray-200 hidden">
+                    <h4 class="font-bold text-sm text-red-600 mb-2 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Unclassified Items (In "Other" Category)
+                    </h4>
+                    <p class="text-xs text-gray-500 mb-2">These items have sizes or names that don't strictly match standard sorting (S, M, L, etc.).</p>
+                    <div id="unclassified-list" class="text-xs text-gray-700 bg-red-50 p-3 rounded grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"></div>
+                </div>
             </div>
         </div>
         
@@ -831,6 +843,9 @@
                 hoodie: createDataStruct(),
                 crewneck: createDataStruct()
             };
+            
+            // To store details of items falling into "Other"
+            const unclassifiedItems = [];
 
             // Heuristics to classify items
             const classify = (name, cats, sizeStr) => {
@@ -843,6 +858,7 @@
                 else if (text.includes('shirt') || text.includes('tee') || text.includes('5000')) type = 'tshirt';
 
                 let gender = 'adult';
+                // Logic for "y" size: sizes starting with 'y' (like ys, ym) or having words like youth/kid
                 if (text.includes('youth') || text.includes('kid') || text.includes('child') || size.startsWith('y')) gender = 'youth';
 
                 let normSize = 'Other';
@@ -861,19 +877,27 @@
                 const { type, gender, normSize } = classify(item.productName, item.categories, item.size);
                 if (stats[type] && stats[type][normSize]) {
                     stats[type][normSize][gender].stock += (item.quantity || 0);
+                    
+                    // Track unclassified
+                    if (normSize === 'Other' && type !== 'other') {
+                        unclassifiedItems.push({
+                            name: item.productName,
+                            size: item.size,
+                            type: type,
+                            gender: gender,
+                            reason: 'Stock'
+                        });
+                    }
                 }
             });
 
             // 2. Process Sold Stock
             currentSales.forEach(sale => {
                 if(sale.type !== 'sale') return;
-                // For sales, we might need to fallback to item details if not in sale record, handled by renderFinancialSummaries logic roughly, 
-                // but here we rely on what's in the sale record or lookup original item if needed.
-                // Simplified: use sale record info if available
+                
                 let sizeToUse = sale.size;
                 let catsToUse = sale.categories;
                 
-                // If data missing in sale record, try to find in currentItems (if item still exists)
                 if ((!sizeToUse || sizeToUse === 'N/A') && sale.inventoryItemId) {
                     const item = currentItems.find(i => i.id === sale.inventoryItemId);
                     if (item) {
@@ -886,6 +910,17 @@
                     const { type, gender, normSize } = classify(sale.productName, catsToUse, sizeToUse);
                     if (stats[type] && stats[type][normSize]) {
                         stats[type][normSize][gender].sold += (sale.quantitySold || 1);
+                        
+                        // Track unclassified
+                        if (normSize === 'Other' && type !== 'other') {
+                             unclassifiedItems.push({
+                                name: sale.productName,
+                                size: sizeToUse,
+                                type: type,
+                                gender: gender,
+                                reason: 'Sold'
+                            });
+                        }
                     }
                 }
             });
@@ -915,6 +950,28 @@
             renderTable('tshirt', 'tshirt-ref-body');
             renderTable('hoodie', 'hoodie-ref-body');
             renderTable('crewneck', 'crewneck-ref-body');
+            
+            // Render Unclassified List
+            const unclassContainer = document.getElementById('unclassified-container');
+            const unclassList = document.getElementById('unclassified-list');
+            
+            if (unclassifiedItems.length > 0) {
+                // Deduplicate items based on name + size
+                const unique = unclassifiedItems.filter((v,i,a)=>a.findIndex(t=>(t.name===v.name && t.size===v.size))===i);
+                
+                unclassList.innerHTML = unique.map(i => `
+                    <div class="bg-white border rounded p-2 shadow-sm">
+                        <span class="font-bold text-gray-800 block">${i.name}</span>
+                        <div class="flex justify-between text-[10px] text-gray-500 uppercase mt-1">
+                            <span>Size: <b class="text-red-600 bg-red-100 px-1 rounded">${i.size}</b></span>
+                            <span>${i.type} / ${i.gender}</span>
+                        </div>
+                    </div>
+                `).join('');
+                unclassContainer.classList.remove('hidden');
+            } else {
+                unclassContainer.classList.add('hidden');
+            }
         }
 
         window.toggleHist = (cat) => document.getElementById(`hist-${cat}`).classList.toggle('hidden');
