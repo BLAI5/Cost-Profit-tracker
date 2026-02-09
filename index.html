@@ -723,6 +723,7 @@
             inventoryContainer.innerHTML = finalFiltered.map(item => {
                 const sales = currentSales.filter(s => s.inventoryItemId === item.id && s.type !== 'restock');
                 const profit = sales.reduce((acc, s) => acc + (s.priceAtSale - s.costAtSale), 0);
+                // Calculate Margin %
                 const margin = item.sellingPrice > 0 ? ((item.sellingPrice - item.retailCost) / item.sellingPrice * 100).toFixed(1) : 0;
 
                 return `
@@ -738,8 +739,11 @@
                         </div>
                         <div class="sm:w-48 space-y-2 mt-4 sm:mt-0 text-right">
                             <div class="bg-green-50 p-2 rounded">
-                                <p class="text-xs text-gray-500">Realized Profit</p>
-                                <p class="font-bold text-green-700">$${profit.toFixed(2)}</p>
+                                <p class="text-xs text-gray-500">Realized Profit <span class="text-gray-400">/ Margin</span></p>
+                                <p class="font-bold text-green-700">
+                                    $${profit.toFixed(2)} 
+                                    <span class="text-xs font-medium text-green-600 ml-1">(${margin}%)</span>
+                                </p>
                             </div>
                             <div class="flex gap-1 no-print">
                                 <button onclick="window.recordAction('${item.id}', 'sell')" class="flex-1 bg-green-500 text-white text-xs py-1.5 rounded" ${item.quantity <=0 ? 'disabled':''}>Sale</button>
