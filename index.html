@@ -373,7 +373,7 @@
         
         <!-- Search & Print Section -->
         <div id="search-section" class="mb-6 hidden flex flex-col gap-4">
-            <!-- Filter Controls (Restored) -->
+            <!-- Filter Controls -->
             <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
                 <label for="category-filter" class="block text-sm font-semibold text-gray-700 mb-2">
                     Filter Dashboard by Category
@@ -668,21 +668,15 @@
             
             try {
                 await runTransaction(db, async (t) => {
-                    // 1. Determine reversal direction
-                    // If we are deleting a 'sale' (which did -1), we need to +1. 
-                    // If deleting a 'restock' (which did +1), we need to -1.
                     const adjustment = type === 'sale' ? 1 : -1;
                     
-                    // 2. Update Inventory Stock
                     const itemRef = doc(db, INVENTORY_COLLECTION_PATH, itemId);
                     const itemSnap = await t.get(itemRef);
                     
-                    // Only update stock if the item still exists in inventory
                     if(itemSnap.exists()) {
                         t.update(itemRef, { quantity: increment(adjustment) });
                     }
                     
-                    // 3. Delete the transaction record
                     const saleRef = doc(db, SALES_LEDGER_COLLECTION_PATH, saleId);
                     t.delete(saleRef);
                 });
@@ -833,7 +827,7 @@
         function updateReferenceCharts() {
             // Helper to initialize data structure
             const createDataStruct = () => ({
-                'XS': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} }, // Added XS
+                'XS': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} },
                 'S': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} },
                 'M': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} },
                 'L': { adult: {stock:0, sold:0}, youth: {stock:0, sold:0} },
@@ -852,10 +846,10 @@
             // To store details of items falling into "Other"
             const unclassifiedItems = [];
 
-            // Heuristics to classify items
+            // MASSIVELY IMPROVED HEURISTICS
             const classify = (name, cats, sizeStr) => {
                 const text = (name + ' ' + (cats||[]).join(' ')).toLowerCase();
-                const size = sizeStr.toLowerCase().trim();
+                const rawSize = (sizeStr || '').toLowerCase().trim();
                 
                 let type = 'other';
 
@@ -864,27 +858,44 @@
                     type = 'crewneck';
                 }
                 // PRIORITY 2: Hoodies
-                // Removed "sweatshirt" to avoid confusion. Kept "sweater" as requested previously.
-                else if (text.includes('hoodie') || text.includes('hoody') || text.includes('18500') || text.includes('hooded') || text.includes('sweater')) {
+                else if (text.includes('hoodie') || text.includes('hoody') || text.includes('18500') || text.includes('hooded') || text.includes('sweater') || text.includes('pullover')) {
                     type = 'hoodie';
                 }
                 // PRIORITY 3: T-Shirts
-                else if (text.includes('shirt') || text.includes('tee') || text.includes('5000')) {
+                else if (text.includes('shirt') || text.includes('tee') || text.includes('5000') || text.includes('t-shirt') || text.includes('tshirt')) {
                     type = 'tshirt';
                 }
 
                 let gender = 'adult';
-                // Logic for "y" size: sizes starting with 'y' (like ys, ym) or having words like youth/kid
-                if (text.includes('youth') || text.includes('kid') || text.includes('child') || size.startsWith('y')) gender = 'youth';
+                // Logic for youth items: checks name, categories AND the size field
+                if (text.includes('youth') || text.includes('kid') || text.includes('child') || rawSize.startsWith('y') || rawSize.includes('youth')) {
+                    gender = 'youth';
+                }
 
                 let normSize = 'Other';
-                if (size === 'xs' || size === 'extra small' || size === 'yxs') normSize = 'XS'; // Added XS Logic
-                else if (size === 's' || size === 'small' || size === 'ys') normSize = 'S';
-                else if (size === 'm' || size === 'medium' || size === 'ym') normSize = 'M';
-                else if (size === 'l' || size === 'large' || size === 'yl') normSize = 'L';
-                else if (size === 'xl' || size === 'yxl') normSize = 'XL';
-                else if (size === '2xl' || size === 'xxl') normSize = '2XL';
-                else if (size === '3xl' || size === 'xxxl') normSize = '3XL';
+                
+                // CRITICAL FIX: Aggressively strip words that break the size match
+                // (e.g. "Youth M" -> "m", "Adult Large" -> "large", "Y-M" -> "ym")
+                let cleanSize = rawSize
+                    .replace(/youth/g, '')
+                    .replace(/adult/g, '')
+                    .replace(/kids/g, '')
+                    .replace(/kid/g, '')
+                    .replace(/size/g, '')
+                    .replace(/boys/g, '')
+                    .replace(/girls/g, '')
+                    .replace(/-/g, '')
+                    .replace(/\./g, '')
+                    .replace(/\s+/g, ''); // Removes all spaces
+
+                // Now match against the cleaned up, perfectly stripped size string
+                if (cleanSize === 'xs' || cleanSize === 'extrasmall' || cleanSize === 'yxs') normSize = 'XS';
+                else if (cleanSize === 's' || cleanSize === 'small' || cleanSize === 'ys' || cleanSize === 'sm') normSize = 'S';
+                else if (cleanSize === 'm' || cleanSize === 'medium' || cleanSize === 'ym' || cleanSize === 'med') normSize = 'M';
+                else if (cleanSize === 'l' || cleanSize === 'large' || cleanSize === 'yl' || cleanSize === 'lg') normSize = 'L';
+                else if (cleanSize === 'xl' || cleanSize === 'extralarge' || cleanSize === 'yxl') normSize = 'XL';
+                else if (cleanSize === '2xl' || cleanSize === 'xxl' || cleanSize === 'y2xl' || cleanSize === 'yxxl') normSize = '2XL';
+                else if (cleanSize === '3xl' || cleanSize === 'xxxl' || cleanSize === 'y3xl' || cleanSize === 'yxxxl') normSize = '3XL';
 
                 return { type, gender, normSize };
             };
@@ -893,7 +904,8 @@
             currentItems.forEach(item => {
                 const { type, gender, normSize } = classify(item.productName, item.categories, item.size);
                 if (stats[type] && stats[type][normSize]) {
-                    stats[type][normSize][gender].stock += (item.quantity || 0);
+                    // Added Number() safety check
+                    stats[type][normSize][gender].stock += Number(item.quantity) || 0;
                     
                     // Track unclassified
                     if (normSize === 'Other' && type !== 'other') {
@@ -926,7 +938,8 @@
                 if (sizeToUse && sizeToUse !== 'N/A') {
                     const { type, gender, normSize } = classify(sale.productName, catsToUse, sizeToUse);
                     if (stats[type] && stats[type][normSize]) {
-                        stats[type][normSize][gender].sold += (sale.quantitySold || 1);
+                        // Added Number() safety check
+                        stats[type][normSize][gender].sold += Number(sale.quantitySold) || 1;
                         
                         // Track unclassified
                         if (normSize === 'Other' && type !== 'other') {
@@ -944,7 +957,7 @@
 
             // Render Function
             const renderTable = (type, elemId) => {
-                const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'Other']; // Added XS to render list
+                const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'Other'];
                 const rows = sizes.map(size => {
                     const d = stats[type][size];
                     // Don't show "Other" row if empty
@@ -1043,7 +1056,8 @@
                 retailCost: parseFloat(document.getElementById('retail-cost').value),
                 sellingPrice: parseFloat(document.getElementById('selling-price').value),
                 size: document.getElementById('size').value,
-                quantity: parseInt(document.getElementById('quantity').value),
+                // Added Number cast safety check
+                quantity: Number(document.getElementById('quantity').value) || 0,
                 color: document.getElementById('color').value,
                 categories: Array.from(categoriesSelect.selectedOptions).map(o => o.value),
                 timestamp: Date.now()
